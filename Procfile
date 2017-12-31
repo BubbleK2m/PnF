@@ -1,1 +1,1 @@
-web: cd $GOPATH\src\github.com\DSMdongly\pnf && go run main.go
+web: cd $GOPATH/src/github.com/DSMdongly/pnf && go run main.go
