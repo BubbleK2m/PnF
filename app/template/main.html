@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <h1>Socket</h1>
+    <script>
+        const socket = new WebSocket(`ws://${location.host}/socket`);
+
+        socket.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            console.log(JSON.stringify(data, null, 2));
+        };
+    </script>
+</body>
+</html>
