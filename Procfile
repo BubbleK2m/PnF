@@ -1,1 +1,1 @@
-web: echo $GOPATH
+web: $GOPATH/bin/pnf
