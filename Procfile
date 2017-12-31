@@ -1,1 +1,1 @@
-web: pnf
+web: go run ./main.go

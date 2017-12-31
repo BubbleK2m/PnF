@@ -1,7 +1,8 @@
 package handler
 
 import (
-	"github.com/DSMdongly/pnf/socket"
+	"pnf/socket"
+
 	"github.com/labstack/echo"
 )
 

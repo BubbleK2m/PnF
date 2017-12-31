@@ -1,8 +1,9 @@
 package socket
 
 import (
-	"github.com/DSMdongly/pnf/app"
-	"github.com/DSMdongly/pnf/app/model"
+	"pnf/app"
+	"pnf/app/model"
+
 	"github.com/gorilla/websocket"
 )
 

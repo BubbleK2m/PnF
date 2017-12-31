@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/DSMdongly/pnf/config"
+	"pnf/config"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
