@@ -1,7 +1,7 @@
 package route
 
 import (
-	"pnf/app/route/handler"
+	"github.com/DSMdongly/pnf/app/route/handler"
 	"github.com/labstack/echo"
 )
 

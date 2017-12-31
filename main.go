@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	"pnf/app"
-	"pnf/app/model"
-	"pnf/app/route"
-	"pnf/config"
-	"pnf/socket"
+	"github.com/DSMdongly/pnf/app"
+	"github.com/DSMdongly/pnf/app/model"
+	"github.com/DSMdongly/pnf/app/route"
+	"github.com/DSMdongly/pnf/config"
+	"github.com/DSMdongly/pnf/socket"
 )
 
 func main() {

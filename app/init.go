@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 
-	"pnf/config"
-	"pnf/support"
+	"github.com/DSMdongly/pnf/config"
+	"github.com/DSMdongly/pnf/support"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"

@@ -1,6 +1,6 @@
 package route
 
-import "pnf/app"
+import "github.com/DSMdongly/pnf/app"
 
 func Init() {
 	Socket(app.Echo)
