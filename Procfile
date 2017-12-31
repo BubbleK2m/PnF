@@ -1,1 +1,1 @@
-web: cd ./bin/pnf
+web: ./bin/pnf
