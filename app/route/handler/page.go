@@ -6,6 +6,6 @@ import (
 
 func MainPage() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		return ctx.File("app/template/main.html")
+		return ctx.File("../app/template/main.html")
 	}
 }
