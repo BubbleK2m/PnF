@@ -1,1 +1,1 @@
-web: $GOPATH/bin/pnf
+web: ./bin/pnf
