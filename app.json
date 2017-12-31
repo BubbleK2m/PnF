@@ -1,0 +1,6 @@
+{
+    "name": "PNF Web Server",
+    "description": "PNF Game Web Application Server",
+    "repository": "https://github.com/DSMdongly/pnf",
+    "keywords": ["go", "pnf", "multiplay", "web game"]
+}
