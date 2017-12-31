@@ -1,1 +1,1 @@
-web: bin/pnf
+web: sudo bin/pnf
