@@ -1,1 +1,1 @@
-web: cd github.com/DSMdongly/pnf && go run main.go
+web: go run main.go
