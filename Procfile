@@ -1,1 +1,1 @@
-web: ./bin/pnf
+web: ./src/github.com/DSMdongly/pnf/main.go
