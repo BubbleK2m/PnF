@@ -1,6 +1,9 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 var (
 	HTTP     map[string]string
@@ -10,7 +13,7 @@ var (
 
 func Init() {
 	HTTP = make(map[string]string)
-	HTTP["PORT"] = "5000"
+	HTTP["PORT"] = os.Getenv("PORT")
 
 	JWT = make(map[string]string)
 	JWT["SECRET"] = "55A95EAA446C2D545BC57A7F3BBAB"
