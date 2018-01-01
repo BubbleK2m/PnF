@@ -26,6 +26,6 @@ func Init() {
 	Postgres["HOST"], _, _ = net.SplitHostPort(pth.Host)
 	Postgres["USER"] = pth.User.Username()
 	Postgres["PASSWORD"], _ = pth.User.Password()
-	Postgres["DB"] = pth.Path
+	Postgres["DB"] = pth.Path[1:]
 	Postgres["PATH"] = fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", Postgres["HOST"], Postgres["USER"], Postgres["DB"], Postgres["PASSWORD"])
 }
