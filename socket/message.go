@@ -231,7 +231,7 @@ func SyncCharacterResponse(res bool) Message {
 
 func SyncCharacterReport(mid string, x, y int) Message {
 	return Message{
-		Kind: "response",
+		Kind: "report",
 		Name: "game.sync",
 		Data: map[string](interface{}){
 			"member": mid,
@@ -253,7 +253,7 @@ func ShootBulletResponse(res bool) Message {
 
 func ShootBulletReport(mid string, x, y int) Message {
 	return Message{
-		Kind: "response",
+		Kind: "report",
 		Name: "game.shoot",
 		Data: map[string](interface{}){
 			"member": mid,
