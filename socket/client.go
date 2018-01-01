@@ -40,6 +40,8 @@ func (cli *Client) Read() {
 			return
 		}
 
+		app.Echo.Logger.Infof("received message %v", msg)
+
 		cli.Input <- msg
 	}
 }
@@ -299,5 +301,7 @@ func (cli *Client) Write() {
 			app.Echo.Logger.Error(err)
 			return
 		}
+
+		app.Echo.Logger.Infof("sent message %v", oup)
 	}
 }
