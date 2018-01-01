@@ -1,6 +1,8 @@
 package socket
 
 import (
+	"encoding/json"
+
 	"github.com/DSMdongly/pnf/app"
 	"github.com/DSMdongly/pnf/app/model"
 
@@ -35,9 +37,16 @@ func (cli *Client) Read() {
 	for {
 		msg := Message{}
 
-		if err := cli.Conn.ReadJSON(&msg); err != nil {
+		_, byts, err := cli.Conn.ReadMessage()
+
+		if err != nil {
 			app.Echo.Logger.Error(err)
-			return
+			break
+		}
+
+		if err = json.Unmarshal(byts, &msg); err != nil {
+			app.Echo.Logger.Error(err)
+			break
 		}
 
 		app.Echo.Logger.Infof("received message %v", msg)
@@ -297,9 +306,16 @@ func (cli *Client) Write() {
 	}()
 
 	for oup := range cli.Output {
-		if err := cli.Conn.WriteJSON(&oup); err != nil {
+		byts, err := json.Marshal(oup)
+
+		if err != nil {
 			app.Echo.Logger.Error(err)
-			return
+			break
+		}
+
+		if err = cli.Conn.WriteMessage(websocket.TextMessage, byts); err != nil {
+			app.Echo.Logger.Error(err)
+			break
 		}
 
 		app.Echo.Logger.Infof("sent message %v", oup)
