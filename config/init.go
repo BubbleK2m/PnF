@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 )
@@ -22,7 +23,7 @@ func Init() {
 	pth, _ := url.Parse(os.Getenv("DATABASE_URL"))
 
 	Postgres = make(map[string]string)
-	Postgres["HOST"] = pth.Host
+	Postgres["HOST"], _, _ = net.SplitHostPort(pth.Host)
 	Postgres["USER"] = pth.User.Username()
 	Postgres["PASSWORD"], _ = pth.User.Password()
 	Postgres["DB"] = pth.Path
