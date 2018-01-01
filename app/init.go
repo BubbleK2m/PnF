@@ -18,7 +18,7 @@ func Init() {
 	Echo = echo.New()
 	Echo.Validator = support.NewValidator()
 
-	Echo.Static("/static", "../app/static")
+	Echo.Static("/static", "app/static")
 
 	Echo.Use(middleware.Recover())
 	Echo.Use(middleware.RequestID())
