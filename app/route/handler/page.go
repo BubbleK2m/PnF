@@ -9,3 +9,9 @@ func MainPage() echo.HandlerFunc {
 		return ctx.File("app/template/main.html")
 	}
 }
+
+func TestPage() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		return ctx.File("app/template/test.html")
+	}
+}

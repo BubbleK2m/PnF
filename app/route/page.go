@@ -7,4 +7,5 @@ import (
 
 func Page(ech *echo.Echo) {
 	ech.GET("/main", handler.MainPage())
+	ech.GET("/test", handler.TestPage())
 }
