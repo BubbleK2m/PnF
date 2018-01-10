@@ -36,8 +36,8 @@ document.getElementById("add-param-btn").onclick = (event) => {
 document.getElementById("key-value-form").onsubmit = (event) => {
     event.preventDefault();
 
-    let requestPathText = document.getElementById("request-path-text");
-    let requestPath = requestPathText.value;
+    let requestNameText = document.getElementById("request-name-text");
+    let requestName = requestNameText.value;
 
     let keyValueParameters = new Object();
     let keyValueContainers = Array.from(document.getElementsByClassName("key-value-container"));
@@ -50,14 +50,14 @@ document.getElementById("key-value-form").onsubmit = (event) => {
 
         keyValueParameters[key] = value;
     });
-    
-    sendRequest(requestPath, keyValueParameters);
+
+    sendRequest(requestName, keyValueParameters);
 };
 
-function sendRequest(path, data) {
+function sendRequest(name, data) {
     let request = {
         "kind": "request",
-        "path": path,
+        "name": name,
         "data": data
     };
 
