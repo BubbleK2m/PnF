@@ -31,7 +31,7 @@ document.getElementById("key-value-form").onsubmit = (event) => {
     let requestPath = requestPathText.value;
 
     let keyValueParameters = new Object();
-    let keyValueContainers = Arary.from(doument.getElementsByClassName("key-value-container"));
+    let keyValueContainers = Array.from(doument.getElementsByClassName("key-value-container"));
 
     keyValueContainers.forEach((container, index) => {
         let [ keyInput, valueInput ] = container.childNodes;
