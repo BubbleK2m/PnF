@@ -14,7 +14,7 @@ document.getElementById("add-param-btn").onclick = (event) => {
     valueInput.placeholder = "Value";
 
     let delParamButton = document.createElement("input");
-    delParamButton.type = "text";
+    delParamButton.type = "button";
     delParamButton.value = "DELETE";
 
     let keyValueContainer = document.createElement("div");
