@@ -13,12 +13,21 @@ document.getElementById("add-param-btn").onclick = (event) => {
     valueInput.type = "text";
     valueInput.placeholder = "Value";
 
+    let delParamButton = document.createElement("input");
+    delParamButton.type = "text";
+    delParamButton.value = "DELETE";
+
     let keyValueContainer = document.createElement("div");
     keyValueContainer.classList.add("key-value-container");
     keyValueContainer.style.display = "block";
 
+    delParamButton.onclick = (event) => {
+        keyValueContainer.parentNode.removeChild(keyValueContainer);s
+    };
+
     keyValueContainer.appendChild(keyInput);
     keyValueContainer.appendChild(valueInput);
+    keyValueContainer.appendChild(delParamButton);
 
     let keyValueForm = document.getElementById("key-value-form");
     keyValueForm.appendChild(keyValueContainer);
@@ -31,7 +40,7 @@ document.getElementById("key-value-form").onsubmit = (event) => {
     let requestPath = requestPathText.value;
 
     let keyValueParameters = new Object();
-    let keyValueContainers = Array.from(doument.getElementsByClassName("key-value-container"));
+    let keyValueContainers = Array.from(document.getElementsByClassName("key-value-container"));
 
     keyValueContainers.forEach((container, index) => {
         let [ keyInput, valueInput ] = container.childNodes;
