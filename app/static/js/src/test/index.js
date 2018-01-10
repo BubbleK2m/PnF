@@ -61,7 +61,6 @@ function sendRequest(name, data) {
         "data": data
     };
 
-    console.log(request);
-
+    console.log(JSON.stringify(request, null, 2));
     socket.send(JSON.stringify(request));
 };
