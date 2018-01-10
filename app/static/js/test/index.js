@@ -20,6 +20,6 @@ document.getElementById("add-param-btn").onclick = (event) => {
     keyValueContainer.appendChild(keyInput);
     keyValueContainer.appendChild(valueInput);
 
-    let paramForm = document.createElement("key-value-form");
-    paramForm.appendChild(keyValueContainer);
+    let keyValueForm = document.getElementById("key-value-form");
+    keyValueForm.appendChild(keyValueContainer);
 };
