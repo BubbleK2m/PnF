@@ -26,5 +26,31 @@ document.getElementById("add-param-btn").onclick = (event) => {
 
 document.getElementById("key-value-form").onsubmit = (event) => {
     event.preventDefault();
-    alert("ㅇㅅㅇ");
+
+    let requestPathText = document.getElementById("request-path-text");
+    let requestPath = requestPathText.value;
+
+    let keyValueParameters = new Object();
+    let keyValueContainers = Arary.from(doument.getElementsByClassName("key-value-container"));
+
+    keyValueContainers.forEach((container, index) => {
+        let [ keyInput, valueInput ] = container.childNodes;
+        
+        let key = keyInput.value;
+        let value = valueInput.value;
+
+        keyValueParameters[key] = value;
+    });
+
+    sendRequest(requestPath, keyValueParameters);
+};
+
+function sendRequest(path, data) {
+    let request = {
+        "kind": "request",
+        "path": path,
+        "data": data
+    };
+
+    socket.send(JSON.stringify(request));
 };
