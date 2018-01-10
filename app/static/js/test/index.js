@@ -51,6 +51,8 @@ document.getElementById("key-value-form").onsubmit = (event) => {
         keyValueParameters[key] = value;
     });
 
+    console.log(keyValueParameters);
+
     sendRequest(requestPath, keyValueParameters);
 };
 
