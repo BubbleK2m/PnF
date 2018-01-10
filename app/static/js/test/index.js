@@ -50,9 +50,7 @@ document.getElementById("key-value-form").onsubmit = (event) => {
 
         keyValueParameters[key] = value;
     });
-
-    console.log(keyValueParameters);
-
+    
     sendRequest(requestPath, keyValueParameters);
 };
 
@@ -62,6 +60,8 @@ function sendRequest(path, data) {
         "path": path,
         "data": data
     };
+
+    console.log(request);
 
     socket.send(JSON.stringify(request));
 };
