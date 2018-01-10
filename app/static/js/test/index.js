@@ -23,3 +23,8 @@ document.getElementById("add-param-btn").onclick = (event) => {
     let keyValueForm = document.getElementById("key-value-form");
     keyValueForm.appendChild(keyValueContainer);
 };
+
+document.getElementById("key-value-form").onsubmit = (event) => {
+    event.preventDefault();
+    alert("ㅇㅅㅇ");
+};
