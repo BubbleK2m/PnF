@@ -22,7 +22,7 @@ document.getElementById("add-param-btn").onclick = (event) => {
     keyValueContainer.style.display = "block";
 
     delParamButton.onclick = (event) => {
-        keyValueContainer.parentNode.removeChild(keyValueContainer);s
+        keyValueContainer.parentNode.removeChild(keyValueContainer);
     };
 
     keyValueContainer.appendChild(keyInput);
