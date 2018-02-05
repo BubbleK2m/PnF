@@ -7,12 +7,11 @@ import (
 )
 
 func Socket() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
+	return func(ctx echo.Context) {
 		con, err := socket.Upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 
 		if err != nil {
 			ctx.Logger().Error(err)
-			return err
 		}
 
 		cli := socket.NewClient(con)
