@@ -2,6 +2,7 @@ package socket
 
 import (
 	"encoding/json"
+	"io"
 
 	"github.com/DSMdongly/pnf/app"
 	"github.com/DSMdongly/pnf/app/model"
@@ -307,7 +308,7 @@ func (cli *Client) Write() {
 			rom.Quit(cli)
 			rom.BroadCast(cli, QuitRoomReport(id))
 		}
-		
+
 		delete(Clients, id)
 	}()
 
@@ -315,11 +316,21 @@ func (cli *Client) Write() {
 		byts, err := json.Marshal(oup)
 
 		if err != nil {
+			if err == io.EOF {
+				app.Echo.Logger.Error("connection closed")
+				break
+			}
+
 			app.Echo.Logger.Error(err)
 			break
 		}
 
 		if err = cli.Conn.WriteMessage(websocket.TextMessage, byts); err != nil {
+			if err == io.EOF {
+				app.Echo.Logger.Error("connection closed")
+				break
+			}
+
 			app.Echo.Logger.Error(err)
 			break
 		}
