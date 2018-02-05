@@ -1,8 +1,8 @@
 package socket
 
 type Message struct {
-	Head  string                   `json:"head"`
-	Body  map[string](interface{}) `json:"body"`
+	Head string                   `json:"head"`
+	Body map[string](interface{}) `json:"body"`
 }
 
 func LoginResponse(res bool) Message {
@@ -90,7 +90,7 @@ func QuitRoomReport(mid string) Message {
 
 func ChatResponse(res bool) Message {
 	return Message{
-		
+
 		Head: "room.chat.response",
 		Body: map[string](interface{}){
 			"result": res,

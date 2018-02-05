@@ -2,8 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>PNF</title>
+    <title>WebGameFramework</title>
   </head>
+
+
   <body oncontextmenu='return false' onselectstart='return false' ondragstart='return false'>
   </body>
 </html>
@@ -62,15 +64,14 @@
     }
 </script>
 
-<script type="text/javascript" src="/static/scripts/library/gl-matrix-min.js"></script>
-<script type="text/javascript" src="/static/scripts/library/hangul.js"></script>
-<script type="text/javascript" src="/static/scripts/library/reconnecting-websocket.min.js"></script>
+<script type="text/javascript" src="/static/script/library/gl-matrix-min.js"></script>
+<script type="text/javascript" src="/static/script/library/hangul.js"></script>
 
-<script src="/static/scripts/mathUtil.js" charset="utf-8"></script>
-<script src="/static/scripts/util.js" charset="utf-8"></script>
-<script src="/static/scripts/Exception.js" charset="utf-8"></script>
+<script src="/static/script/mathUtil.js" charset="utf-8"></script>
+<script src="/static/script/util.js" charset="utf-8"></script>
+<script src="/static/script/Exception.js" charset="utf-8"></script>
 
-<script src="/static/scripts/Display.js" charset="utf-8"></script>
+<script src="/static/script/Display.js" charset="utf-8"></script>
 <!-- (WebGLContext)gl가 먼저 로딩 되어야하므로 Display만 먼저 따로 로딩한다. -->
 <script>
   var display=new Display(1700,800);
@@ -82,54 +83,64 @@
   },false);
 </script>
 
-<script src="/static/scripts/Graphic/Shape.js" charset="utf-8"></script>
-<script src="/static/scripts/Graphic/Texture.js" charset="utf-8"></script>
-<script src="/static/scripts/Graphic/Sprite.js" charset="utf-8"></script>
+<script src="/static/script/Graphic/Shape.js" charset="utf-8"></script>
+<script src="/static/script/Graphic/Texture.js" charset="utf-8"></script>
+<script src="/static/script/Graphic/Sprite.js" charset="utf-8"></script>
+<script src="/static/script/Graphic/Text.js" charset="utf-8"></script>
 
-<script src="/static/scripts/TextureLoader.js" charset="utf-8"></script>
+<script src="/static/script/TextureLoader.js" charset="utf-8"></script>
+<script src="/static/script/NetworkManager.js" charset="utf-8"></script>
 
-<script src="/static/scripts/Input.js" charset="utf-8"></script>
-<script src="/static/scripts/Camera.js" charset="utf-8"></script>
+<script src="/static/script/Input.js" charset="utf-8"></script>
+<script src="/static/script/Camera.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/GameObject.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Component.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/GameObject.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Component.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/Component/Body/Body.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Body/Body.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/Component/Model/Model.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Model/ShapeModel.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Model/TextureModel.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Model/AnimationModel.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Model/PolygonModel.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Model/Model.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Model/ShapeModel.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Model/TextureModel.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Model/AnimationModel.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Model/PolygonModel.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/Component/Collision/Contact.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Collision/Collision.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Collision/UICollision.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Collision/AABB.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Collision/CircleCollision.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Component/Collision/PolygonCollision.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/Contact.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/Collision.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/UICollision.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/AABB.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/CircleCollision.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Collision/PolygonCollision.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/World.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Entity/Entity.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Entity/Circle.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Entity/Polygon.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Entity/Player.js" charset="utf-8"></script>
-<script src="/static/scripts/GameObject/Entity/PigNose.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Physics/Joint.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Physics/Spring.js" charset="utf-8"></script>
 
-<script src="/static/scripts/Algorithm/QuadTree.js" charset="utf-8"></script>
-<script src="/static/scripts/Algorithm/Rectangle.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/World.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/Entity.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/Circle.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/Polygon.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/Player.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/PigNose.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/DoubleBall.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/DoubleRect.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Entity/GameText.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameObject/Component/Body/UIBody.js" charset="utf-8"></script>
-<script src="/static/scripts/UI/UIManager.js" charset="utf-8"></script>
-<script src="/static/scripts/UI/UI.js" charset="utf-8"></script>
+<script src="/static/script/Algorithm/QuadTree.js" charset="utf-8"></script>
+<script src="/static/script/Algorithm/Rectangle.js" charset="utf-8"></script>
 
-<script src="/static/scripts/Game.js" charset="utf-8"></script>
+<script src="/static/script/GameObject/Component/Body/UIBody.js" charset="utf-8"></script>
+<script src="/static/script/UI/UIManager.js" charset="utf-8"></script>
+<script src="/static/script/UI/UI.js" charset="utf-8"></script>
 
-<script src="/static/scripts/GameState/GameStateManager.js" charset="utf-8"></script>
-<script src="/static/scripts/GameState/TitleState.js" charset="utf-8"></script>
-<script src="/static/scripts/GameState/LoginState.js" charset="utf-8"></script>
-<script src="/static/scripts/GameState/RegisterState.js" charset="utf-8"></script>
-<script src="/static/scripts/GameState/LobbyState.js" charset="utf-8"></script>
-<script src="/static/scripts/GameState/MainGameState.js" charset="utf-8"></script>
+<script src="/static/script/Game.js" charset="utf-8"></script>
 
-<script src="/static/scripts/main.js" charset="utf-8"></script>
+<script src="/static/script/GameState/GameStateManager.js" charset="utf-8"></script>
+<script src="/static/script/GameState/TitleState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/LoginState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/RegisterState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/LobbyState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/CreateRoomState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/InRoomState.js" charset="utf-8"></script>
+<script src="/static/script/GameState/MainGameState.js" charset="utf-8"></script>
+
+<script src="/static/script/main.js" charset="utf-8"></script>

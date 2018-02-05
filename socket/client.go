@@ -206,7 +206,9 @@ func (cli *Client) Process() {
 		case "char.switch.request":
 			{
 				cld, inb := cli.Data, inp.Body
-				id, nme, idx := cld["id"].(string), cld["room"].(string), inb["inbex"].(int)
+				id, nme, idx := cld["id"].(string), cld["room"].(string), inb["index"].(int)
+
+				cli.Data["character"] = idx
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, SwitchCharacterReport(id, idx))
