@@ -1,16 +1,14 @@
 package socket
 
 type Message struct {
-	Kind string                   `json:"kind"`
-	Name string                   `json:"name"`
-	Data map[string](interface{}) `json:"data"`
+	Head  string                   `json:"head"`
+	Body  map[string](interface{}) `json:"body"`
 }
 
 func LoginResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "auth.login",
-		Data: map[string](interface{}){
+		Head: "auth.login.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -18,9 +16,8 @@ func LoginResponse(res bool) Message {
 
 func RegisterResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "auth.register",
-		Data: map[string](interface{}){
+		Head: "auth.register.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -28,9 +25,8 @@ func RegisterResponse(res bool) Message {
 
 func CheckResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "auth.check",
-		Data: map[string](interface{}){
+		Head: "auth.check.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -38,9 +34,8 @@ func CheckResponse(res bool) Message {
 
 func CreateRoomResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "room.create",
-		Data: map[string](interface{}){
+		Head: "room.create.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -48,9 +43,8 @@ func CreateRoomResponse(res bool) Message {
 
 func RoomListResponse(res bool, roms map[string]int) Message {
 	return Message{
-		Kind: "response",
-		Name: "room.list",
-		Data: map[string](interface{}){
+		Head: "room.list.response",
+		Body: map[string](interface{}){
 			"result": res,
 			"rooms":  roms,
 		},
@@ -59,9 +53,8 @@ func RoomListResponse(res bool, roms map[string]int) Message {
 
 func JoinRoomResponse(res bool, mems map[string]bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "room.join",
-		Data: map[string](interface{}){
+		Head: "room.join.response",
+		Body: map[string](interface{}){
 			"result":  res,
 			"members": mems,
 		},
@@ -70,9 +63,8 @@ func JoinRoomResponse(res bool, mems map[string]bool) Message {
 
 func JoinRoomReport(mid string) Message {
 	return Message{
-		Kind: "report",
-		Name: "room.join",
-		Data: map[string](interface{}){
+		Head: "room.join.response",
+		Body: map[string](interface{}){
 			"member": mid,
 		},
 	}
@@ -80,9 +72,8 @@ func JoinRoomReport(mid string) Message {
 
 func QuitRoomResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "room.quit",
-		Data: map[string](interface{}){
+		Head: "room.quit.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -90,9 +81,8 @@ func QuitRoomResponse(res bool) Message {
 
 func QuitRoomReport(mid string) Message {
 	return Message{
-		Kind: "report",
-		Name: "room.quit",
-		Data: map[string](interface{}){
+		Head: "room.quit.report",
+		Body: map[string](interface{}){
 			"member": mid,
 		},
 	}
@@ -100,9 +90,9 @@ func QuitRoomReport(mid string) Message {
 
 func ChatResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "room.chat",
-		Data: map[string](interface{}){
+		
+		Head: "room.chat.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -110,9 +100,8 @@ func ChatResponse(res bool) Message {
 
 func ChatReport(mid, msg string) Message {
 	return Message{
-		Kind: "report",
-		Name: "room.chat",
-		Data: map[string](interface{}){
+		Head: "room.chat.report",
+		Body: map[string](interface{}){
 			"message": msg,
 			"sender":  mid,
 		},
@@ -121,9 +110,8 @@ func ChatReport(mid, msg string) Message {
 
 func SwitchCharacterResponse(res bool) Message {
 	return Message{
-		Kind: "report",
-		Name: "room.switch",
-		Data: map[string](interface{}){
+		Head: "room.switch.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -131,9 +119,8 @@ func SwitchCharacterResponse(res bool) Message {
 
 func SwitchCharacterReport(mid string, idx int) Message {
 	return Message{
-		Kind: "report",
-		Name: "room.switch",
-		Data: map[string](interface{}){
+		Head: "room.switch.report",
+		Body: map[string](interface{}){
 			"index":  idx,
 			"member": mid,
 		},
@@ -142,9 +129,8 @@ func SwitchCharacterReport(mid string, idx int) Message {
 
 func ReadyGameResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.ready",
-		Data: map[string](interface{}){
+		Head: "game.ready.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -152,9 +138,8 @@ func ReadyGameResponse(res bool) Message {
 
 func ReadyGameReport(mid string, rdy bool) Message {
 	return Message{
-		Kind: "report",
-		Name: "game.ready",
-		Data: map[string](interface{}){
+		Head: "game.ready.report",
+		Body: map[string](interface{}){
 			"member": mid,
 			"ready":  rdy,
 		},
@@ -163,9 +148,8 @@ func ReadyGameReport(mid string, rdy bool) Message {
 
 func StartGameResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.start",
-		Data: map[string](interface{}){
+		Head: "game.start.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -173,16 +157,14 @@ func StartGameResponse(res bool) Message {
 
 func StartGameReport() Message {
 	return Message{
-		Kind: "report",
-		Name: "game.start",
+		Head: "game.start.report",
 	}
 }
 
 func MoveCharacterResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.move",
-		Data: map[string](interface{}){
+		Head: "char.move.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -190,9 +172,8 @@ func MoveCharacterResponse(res bool) Message {
 
 func MoveCharacterReport(mid string, dir int) Message {
 	return Message{
-		Kind: "report",
-		Name: "game.move",
-		Data: map[string](interface{}){
+		Head: "char.move.report",
+		Body: map[string](interface{}){
 			"member":    mid,
 			"direction": dir,
 		},
@@ -201,9 +182,8 @@ func MoveCharacterReport(mid string, dir int) Message {
 
 func JumpCharacterResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.jump",
-		Data: map[string](interface{}){
+		Head: "char.jump.report",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -211,9 +191,8 @@ func JumpCharacterResponse(res bool) Message {
 
 func JumpCharacterReport(mid string) Message {
 	return Message{
-		Kind: "report",
-		Name: "game.jump",
-		Data: map[string](interface{}){
+		Head: "char.jump.report",
+		Body: map[string](interface{}){
 			"member": mid,
 		},
 	}
@@ -221,9 +200,8 @@ func JumpCharacterReport(mid string) Message {
 
 func SyncCharacterResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.sync",
-		Data: map[string](interface{}){
+		Head: "char.sync.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -231,9 +209,8 @@ func SyncCharacterResponse(res bool) Message {
 
 func SyncCharacterReport(mid string, x, y int) Message {
 	return Message{
-		Kind: "report",
-		Name: "game.sync",
-		Data: map[string](interface{}){
+		Head: "char.sync.report",
+		Body: map[string](interface{}){
 			"member": mid,
 			"x":      x,
 			"y":      y,
@@ -243,9 +220,8 @@ func SyncCharacterReport(mid string, x, y int) Message {
 
 func ShootBulletResponse(res bool) Message {
 	return Message{
-		Kind: "response",
-		Name: "game.shoot",
-		Data: map[string](interface{}){
+		Head: "char.shoot.response",
+		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
@@ -253,9 +229,8 @@ func ShootBulletResponse(res bool) Message {
 
 func ShootBulletReport(mid string, x, y int) Message {
 	return Message{
-		Kind: "report",
-		Name: "game.shoot",
-		Data: map[string](interface{}){
+		Head: "char.shoot.report",
+		Body: map[string](interface{}){
 			"member": mid,
 			"x":      x,
 			"y":      y,

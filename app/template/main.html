@@ -1,10 +1,135 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>PNF</title>
-    </head>
-    <body>
-        <h1>PNF</h1>
-        <script src="../static/js/main/index.js"></script>
-    </body>
+  <head>
+    <meta charset="utf-8">
+    <title>PNF</title>
+  </head>
+  <body oncontextmenu='return false' onselectstart='return false' ondragstart='return false'>
+  </body>
 </html>
+
+<script id="solid_color_shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform vec4 vColor;
+
+    void main(void) {
+        gl_FragColor = vColor;
+    }
+</script>
+
+<script id="solid_color_shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec4 aVertexColor;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    varying vec4 vColor;
+
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vColor = aVertexColor;
+    }
+</script>
+
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main(void) {
+        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    varying vec2 vTextureCoord;
+
+
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+    }
+</script>
+
+<script type="text/javascript" src="/static/scripts/library/gl-matrix-min.js"></script>
+<script type="text/javascript" src="/static/scripts/library/hangul.js"></script>
+<script type="text/javascript" src="/static/scripts/library/reconnecting-websocket.min.js"></script>
+
+<script src="/static/scripts/mathUtil.js" charset="utf-8"></script>
+<script src="/static/scripts/util.js" charset="utf-8"></script>
+<script src="/static/scripts/Exception.js" charset="utf-8"></script>
+
+<script src="/static/scripts/Display.js" charset="utf-8"></script>
+<!-- (WebGLContext)gl가 먼저 로딩 되어야하므로 Display만 먼저 따로 로딩한다. -->
+<script>
+  var display=new Display(1700,800);
+  // console.log(window.innerWidth,window.innerHeight);
+
+  window.addEventListener("load",function(){
+    window.document.documentElement.webkitRequestFullscreen();
+		// window.document.webkitExitFullscreen();
+  },false);
+</script>
+
+<script src="/static/scripts/Graphic/Shape.js" charset="utf-8"></script>
+<script src="/static/scripts/Graphic/Texture.js" charset="utf-8"></script>
+<script src="/static/scripts/Graphic/Sprite.js" charset="utf-8"></script>
+
+<script src="/static/scripts/TextureLoader.js" charset="utf-8"></script>
+
+<script src="/static/scripts/Input.js" charset="utf-8"></script>
+<script src="/static/scripts/Camera.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/GameObject.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Component.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/Component/Body/Body.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/Component/Model/Model.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Model/ShapeModel.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Model/TextureModel.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Model/AnimationModel.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Model/PolygonModel.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/Component/Collision/Contact.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Collision/Collision.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Collision/UICollision.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Collision/AABB.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Collision/CircleCollision.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Component/Collision/PolygonCollision.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/World.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Entity/Entity.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Entity/Circle.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Entity/Polygon.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Entity/Player.js" charset="utf-8"></script>
+<script src="/static/scripts/GameObject/Entity/PigNose.js" charset="utf-8"></script>
+
+<script src="/static/scripts/Algorithm/QuadTree.js" charset="utf-8"></script>
+<script src="/static/scripts/Algorithm/Rectangle.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameObject/Component/Body/UIBody.js" charset="utf-8"></script>
+<script src="/static/scripts/UI/UIManager.js" charset="utf-8"></script>
+<script src="/static/scripts/UI/UI.js" charset="utf-8"></script>
+
+<script src="/static/scripts/Game.js" charset="utf-8"></script>
+
+<script src="/static/scripts/GameState/GameStateManager.js" charset="utf-8"></script>
+<script src="/static/scripts/GameState/TitleState.js" charset="utf-8"></script>
+<script src="/static/scripts/GameState/LoginState.js" charset="utf-8"></script>
+<script src="/static/scripts/GameState/RegisterState.js" charset="utf-8"></script>
+<script src="/static/scripts/GameState/LobbyState.js" charset="utf-8"></script>
+<script src="/static/scripts/GameState/MainGameState.js" charset="utf-8"></script>
+
+<script src="/static/scripts/main.js" charset="utf-8"></script>

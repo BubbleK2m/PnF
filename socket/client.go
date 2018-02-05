@@ -59,15 +59,11 @@ func (cli *Client) Process() {
 	defer close(cli.Output)
 
 	for inp := range cli.Input {
-		if inp.Kind != "request" {
-			break
-		}
-
-		switch inp.Name {
-		case "auth.login":
+		switch inp.Head {
+		case "auth.login.request":
 			{
-				ind := inp.Data
-				id, pw := ind["id"].(string), ind["pw"].(string)
+				inb := inp.Body
+				id, pw := inb["id"].(string), inb["pw"].(string)
 
 				db := model.DB
 				usr := model.User{}
@@ -88,10 +84,10 @@ func (cli *Client) Process() {
 
 				cli.Output <- LoginResponse(true)
 			}
-		case "auth.register":
+		case "auth.register.request":
 			{
-				ind := inp.Data
-				id, pw := ind["id"].(string), ind["pw"].(string)
+				inb := inp.Body
+				id, pw := inb["id"].(string), inb["pw"].(string)
 
 				db := model.DB
 				usr := model.User{id, pw}
@@ -107,10 +103,10 @@ func (cli *Client) Process() {
 
 				cli.Output <- RegisterResponse(true)
 			}
-		case "auth.check":
+		case "auth.check.request":
 			{
-				ind := inp.Data
-				id := ind["id"].(string)
+				inb := inp.Body
+				id := inb["id"].(string)
 
 				db := model.DB
 				usr := model.User{}
@@ -126,10 +122,10 @@ func (cli *Client) Process() {
 
 				cli.Output <- CheckResponse(true)
 			}
-		case "room.create":
+		case "room.create.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme := cld["id"].(string), ind["name"].(string)
+				cld, inb := cli.Data, inp.Body
+				id, nme := cld["id"].(string), inb["name"].(string)
 
 				rom := Rooms[nme]
 
@@ -146,7 +142,7 @@ func (cli *Client) Process() {
 				Rooms[nme] = rom
 				cli.Output <- CreateRoomResponse(true)
 			}
-		case "room.list":
+		case "room.list.request":
 			{
 				roms := make(map[string]int)
 
@@ -156,10 +152,10 @@ func (cli *Client) Process() {
 
 				cli.Output <- RoomListResponse(true, roms)
 			}
-		case "room.join":
+		case "room.join.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme := cld["id"].(string), ind["name"].(string)
+				cld, inb := cli.Data, inp.Body
+				id, nme := cld["id"].(string), inb["name"].(string)
 
 				rom := Rooms[nme]
 
@@ -180,7 +176,7 @@ func (cli *Client) Process() {
 
 				cli.Output <- JoinRoomResponse(true, mems)
 			}
-		case "room.quit":
+		case "room.quit.request":
 			{
 				cld := cli.Data
 				nme, id := cld["room"].(string), cld["id"].(string)
@@ -197,37 +193,37 @@ func (cli *Client) Process() {
 
 				cli.Output <- QuitRoomResponse(true)
 			}
-		case "room.chat":
+		case "room.chat.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, msg := cld["id"].(string), cld["room"].(string), ind["message"].(string)
+				cld, inb := cli.Data, inp.Body
+				id, nme, msg := cld["id"].(string), cld["room"].(string), inb["message"].(string)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, ChatReport(id, msg))
 
 				cli.Output <- ChatResponse(true)
 			}
-		case "room.switch":
+		case "char.switch.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, idx := cld["id"].(string), cld["room"].(string), ind["index"].(int)
+				cld, inb := cli.Data, inp.Body
+				id, nme, idx := cld["id"].(string), cld["room"].(string), inb["inbex"].(int)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, SwitchCharacterReport(id, idx))
 
 				cli.Output <- SwitchCharacterResponse(true)
 			}
-		case "game.ready":
+		case "game.ready.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, rdy := cld["id"].(string), cld["room"].(string), ind["ready"].(bool)
+				cld, inb := cli.Data, inp.Body
+				id, nme, rdy := cld["id"].(string), cld["room"].(string), inb["ready"].(bool)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, ReadyGameReport(id, rdy))
 
 				cli.Output <- ReadyGameResponse(true)
 			}
-		case "game.start":
+		case "game.start.request":
 			{
 				cld := cli.Data
 				id, nme := cld["id"].(string), cld["room"].(string)
@@ -243,17 +239,17 @@ func (cli *Client) Process() {
 				rom.BroadCast(cli, StartGameReport())
 				cli.Output <- StartGameResponse(true)
 			}
-		case "game.move":
+		case "char.move.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, dir := cld["id"].(string), cld["room"].(string), ind["direction"].(int)
+				cld, inb := cli.Data, inp.Body
+				id, nme, dir := cld["id"].(string), cld["room"].(string), inb["direction"].(int)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, MoveCharacterReport(id, dir))
 
 				cli.Output <- MoveCharacterResponse(true)
 			}
-		case "game.jump":
+		case "char.jump.request":
 			{
 				cld := cli.Data
 				id, nme := cld["id"].(string), cld["room"].(string)
@@ -263,20 +259,20 @@ func (cli *Client) Process() {
 
 				cli.Output <- JumpCharacterResponse(true)
 			}
-		case "game.sync":
+		case "char.sync.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, x, y := cld["id"].(string), cld["room"].(string), ind["x"].(int), ind["y"].(int)
+				cld, inb := cli.Data, inp.Body
+				id, nme, x, y := cld["id"].(string), cld["room"].(string), inb["x"].(int), inb["y"].(int)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, SyncCharacterReport(id, x, y))
 
 				cli.Output <- SyncCharacterResponse(true)
 			}
-		case "game.shoot":
+		case "char.shoot.request":
 			{
-				cld, ind := cli.Data, inp.Data
-				id, nme, x, y := cld["id"].(string), cld["room"].(string), ind["x"].(int), ind["y"].(int)
+				cld, inb := cli.Data, inp.Body
+				id, nme, x, y := cld["id"].(string), cld["room"].(string), inb["x"].(int), inb["y"].(int)
 
 				rom := Rooms[nme]
 				rom.BroadCast(cli, ShootBulletReport(id, x, y))

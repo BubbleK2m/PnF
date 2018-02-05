@@ -6,11 +6,77 @@
     <body>
         <h1>TEST</h1>
         <form id="key-value-form">
-            <input id="request-name-text" type="text" placeholder="REQUEST NAME">
+            <input id="head-name-text" type="text" placeholder="HEAD">
             <input id="add-param-btn" type="button" value="ADD">
             <input id="send-request-btn" type="submit" value="SEND">
         </form>
-        <script src="/static/js/lib/reconnecting-websocket/1.0.0.min.js"></script>
-        <script src="/static/js/src/test/index.js"></script>
+        <script src="/static/scripts/library/reconnecting-websocket.min.js"></script>
+        <script>
+            const socket = new WebSocket(`wss://${location.host}/socket`);
+
+            socket.onmessage = (event) => {
+                console.log(JSON.stringify(event.data, null, 2));
+            };
+
+            document.getElementById("add-param-btn").onclick = (event) => {
+                let keyInput = document.createElement("input");
+                keyInput.type = "text";
+                keyInput.placeholder = "Key";
+
+                let valueInput = document.createElement("input");
+                valueInput.type = "text";
+                valueInput.placeholder = "Value";
+
+                let delParamButton = document.createElement("input");
+                delParamButton.type = "button";
+                delParamButton.value = "DELETE";
+
+                let keyValueContainer = document.createElement("div");
+                keyValueContainer.classList.add("key-value-container");
+                keyValueContainer.style.display = "block";
+
+                delParamButton.onclick = (event) => {
+                    keyValueContainer.parentNode.removeChild(keyValueContainer);
+                };
+
+                keyValueContainer.appendChild(keyInput);
+                keyValueContainer.appendChild(valueInput);
+                keyValueContainer.appendChild(delParamButton);
+
+                let keyValueForm = document.getElementById("key-value-form");
+                keyValueForm.appendChild(keyValueContainer);
+            };
+
+            document.getElementById("key-value-form").onsubmit = (event) => {
+                event.preventDefault();
+
+                let headNameText = document.getElementById("head-name-text");
+                let headName = headNameText.value;
+
+                let keyValueParameters = new Object();
+                let keyValueContainers = Array.from(document.getElementsByClassName("key-value-container"));
+
+                keyValueContainers.forEach((container, index) => {
+                    let [ keyInput, valueInput ] = container.childNodes;
+                    
+                    let key = keyInput.value;
+                    let value = valueInput.value;
+
+                    keyValueParameters[key] = value;
+                });
+
+                sendRequest(requestName, keyValueParameters);
+            };
+
+            function sendRequest(name, data) {
+                let request = {
+                    "head": name,
+                    "body": data,
+                };
+
+                console.log(JSON.stringify(request, null, 2));
+                socket.send(JSON.stringify(request));
+            };
+        </script>
     </body>
 </html>
