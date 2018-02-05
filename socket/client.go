@@ -27,9 +27,11 @@ func NewClient(con *websocket.Conn) *Client {
 }
 
 func (cli *Client) Handle() {
-	go cli.Read()
-	go cli.Process()
-	go cli.Write()
+	for {
+		go cli.Read()
+		go cli.Process()
+		go cli.Write()
+	}
 }
 
 func (cli *Client) Read() {
