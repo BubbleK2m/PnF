@@ -292,8 +292,12 @@ func (cli *Client) Process() {
 func (cli *Client) Write() {
 	defer func() {
 		cli.Conn.Close()
-
 		cld := cli.Data
+
+		if cld["id"] == nil {
+			return
+		}
+
 		id := cld["id"].(string)
 
 		if cld["room"] != nil {
@@ -303,7 +307,7 @@ func (cli *Client) Write() {
 			rom.Quit(cli)
 			rom.BroadCast(cli, QuitRoomReport(id))
 		}
-
+		
 		delete(Clients, id)
 	}()
 
