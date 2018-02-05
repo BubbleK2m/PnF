@@ -175,8 +175,6 @@ func (cli *Client) Process() {
 					mems[id]["current_character"] = chr
 				}
 
-				cli.Data["character"] = 0
-
 				rom.Join(cli, false)
 				rom.BroadCast(cli, JoinRoomReport(id))
 

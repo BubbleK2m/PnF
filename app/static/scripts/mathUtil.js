@@ -1,12 +1,8 @@
 "use strict"
 
-class Vector2d extends PoolObject{
+class Vector2d{
 
   constructor(x,y){
-    this.init(x,y);
-  }
-
-  init(x,y){
     var a=arguments;
 
     switch (a.length) {
@@ -29,10 +25,6 @@ class Vector2d extends PoolObject{
       default:OverloadingException();
 
     }
-  }
-
-  destructor(){
-    this.x=this.y=0;
   }
 
   set(x,y) {

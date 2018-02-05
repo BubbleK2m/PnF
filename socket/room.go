@@ -20,6 +20,7 @@ func (rom *Room) Join(cli *Client, mas bool) {
 	rom.Clients[id] = cli
 
 	cli.Data["room"] = rom.Data["name"].(string)
+	cli.Data["character"] = 0
 }
 
 func (rom *Room) Quit(cli *Client) {

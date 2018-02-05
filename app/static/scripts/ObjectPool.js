@@ -1,6 +1,6 @@
 "use strict"
 
-class PoolObject(){
+class PoolObject{
   constructor(){
     this.isFree=false;
   }
