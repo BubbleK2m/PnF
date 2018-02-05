@@ -165,11 +165,17 @@ func (cli *Client) Process() {
 				}
 
 				mas := rom.Data["master"].(string)
-				mems := make(map[string]bool)
+				mems := make(map[string]map[string]interface{})
 
-				for id := range rom.Clients {
-					mems[id] = (id == mas)
+				for id, cli := range rom.Clients {
+					cld := cli.Data
+					chr := cld["character"].(int)
+
+					mems[id]["is_master"] = (id == mas)
+					mems[id]["current_character"] = chr
 				}
+
+				cli.Data["character"] = 0
 
 				rom.Join(cli, false)
 				rom.BroadCast(cli, JoinRoomReport(id))

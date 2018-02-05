@@ -51,7 +51,7 @@ func RoomListResponse(res bool, roms map[string]int) Message {
 	}
 }
 
-func JoinRoomResponse(res bool, mems map[string]bool) Message {
+func JoinRoomResponse(res bool, mems map[string]map[string]interface{}) Message {
 	return Message{
 		Head: "room.join.response",
 		Body: map[string](interface{}){
