@@ -10,9 +10,9 @@
             <input id="add-param-btn" type="button" value="ADD">
             <input id="send-request-btn" type="submit" value="SEND">
         </form>
-        <script src="/static/scripts/library/reconnecting-websocket.min.js"></script>
+        <script src="/static/scripts/library/reconnecting-websocket-min.js"></script>
         <script>
-            const socket = new WebSocket(`wss://${location.host}/socket`);
+            const socket = new WebSocket(`wss://pnf.herokuapp.com/socket`);
 
             socket.onmessage = (event) => {
                 console.log(event.data);
