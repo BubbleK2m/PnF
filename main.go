@@ -21,5 +21,6 @@ func main() {
 	app.Init()
 	route.Init()
 
+	app.Awake()
 	app.Start()
 }
