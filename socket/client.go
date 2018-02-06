@@ -3,6 +3,7 @@ package socket
 import (
 	"encoding/json"
 	"io"
+	"sync"
 
 	"github.com/DSMdongly/pnf/app"
 	"github.com/DSMdongly/pnf/app/model"
@@ -27,13 +28,44 @@ func NewClient(con *websocket.Conn) *Client {
 }
 
 func (cli *Client) Handle() {
-	go cli.Read()
-	go cli.Process()
-	go cli.Write()
+	wg := sync.WaitGroup{}
+
+	go cli.Read(&wg)
+	go cli.Process(&wg)
+	go cli.Write(&wg)
+
+	wg.Wait()
 }
 
-func (cli *Client) Read() {
-	defer close(cli.Input)
+func (cli *Client) Close() {
+	cli.Conn.Close()
+
+	cld := cli.Data
+
+	if cld["id"] == nil {
+		return
+	}
+
+	id := cld["id"].(string)
+
+	if cld["room"] != nil {
+		nme := cld["room"].(string)
+		rom := Rooms[nme]
+
+		rom.Quit(cli)
+		rom.BroadCast(cli, QuitRoomReport(id))
+	}
+
+	delete(Clients, id)
+}
+
+func (cli *Client) Read(wg *sync.WaitGroup) {
+	defer func() {
+		close(cli.Input)
+		wg.Done()
+	}()
+
+	wg.Add(1)
 
 	for {
 		msg := Message{}
@@ -56,8 +88,13 @@ func (cli *Client) Read() {
 	}
 }
 
-func (cli *Client) Process() {
-	defer close(cli.Output)
+func (cli *Client) Process(wg *sync.WaitGroup) {
+	defer func() {
+		close(cli.Output)
+		wg.Done()
+	}()
+
+	wg.Add(1)
 
 	for inp := range cli.Input {
 		switch inp.Head {
@@ -290,27 +327,12 @@ func (cli *Client) Process() {
 	}
 }
 
-func (cli *Client) Write() {
+func (cli *Client) Write(wg *sync.WaitGroup) {
 	defer func() {
-		cli.Conn.Close()
-		cld := cli.Data
-
-		if cld["id"] == nil {
-			return
-		}
-
-		id := cld["id"].(string)
-
-		if cld["room"] != nil {
-			nme := cld["room"].(string)
-			rom := Rooms[nme]
-
-			rom.Quit(cli)
-			rom.BroadCast(cli, QuitRoomReport(id))
-		}
-
-		delete(Clients, id)
+		wg.Done()
 	}()
+
+	wg.Add(1)
 
 	for oup := range cli.Output {
 		byts, err := json.Marshal(oup)
