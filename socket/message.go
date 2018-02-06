@@ -80,6 +80,24 @@ func JoinRoomReport(mid string) Message {
 	}
 }
 
+func KickRoomResponse(res bool) Message {
+	return Message{
+		Head: "room.quit.response",
+		Body: map[string](interface{}){
+			"result": res,
+		},
+	}
+}
+
+func KickRoomReport(mid string) Message {
+	return Message{
+		Head: "room.kick.report",
+		Body: map[string](interface{}){
+			"member": mid,
+		},
+	}
+}
+
 func QuitRoomResponse(res bool) Message {
 	return Message{
 		Head: "room.quit.response",
