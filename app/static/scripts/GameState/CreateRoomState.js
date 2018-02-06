@@ -40,9 +40,12 @@ class CreateRoomState extends GameState {
       },
       released: function(uiButton) {
         uiButton.label.setColor(0,0,0,0.1);
-        var data={};
-        data.Protocol="CreateRoom";
-        data.RoomName=self.inputField.textLabel.text;
+        var data={
+          head: "room.create.request",
+          body: {
+            "name": self.inputField.textLabel.text
+          }
+        };
         networkManager.send(data);
       }
     });
@@ -68,12 +71,12 @@ class CreateRoomState extends GameState {
   }
 
   messageProcess(message) {
-    switch (message.Protocol) {
+    switch (message.head) {
 
-      case "CreateRoomResult":{
-        if(message.Value)
+      case "room.create.result":{
+        if(message.body.result)
           gsm.setState(GameState.IN_ROOM_STATE,{
-            Room:message.Room
+            Room: {}
           });
         else {
           this.inputField.setText("");

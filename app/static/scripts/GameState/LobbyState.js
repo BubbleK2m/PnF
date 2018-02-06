@@ -167,14 +167,14 @@ class LobbyState extends GameState {
   }
 // 아직 나갈때 처리가 안됬다. 이건 서버에서 처리해야하는 부분
   messageProcess(message) {
-    switch (message.Protocol) {
+    switch (message.head) {
       case "room.list.request":{
         this.roomList=message.RoomList;
         this.reloadFunc(this.roomListPanel);
         console.log(this.roomList);
       }break;
 
-      case "room.create.report":{
+      case "AddRoom":{
         let room=message.Room;
         this.roomList[room.RoomID]=room;
         this.reloadFunc(this.roomListPanel);
@@ -211,6 +211,7 @@ class LobbyState extends GameState {
       }break;
 
       default:console.log("UnknownProtocol",message);
+
     }
   }
 
