@@ -71,7 +71,7 @@ func JoinRoomResponse(res bool, mems map[string]interface{}) Message {
 	}
 }
 
-func JoinRoomReport(mid string) Message {
+func JoinMemberReport(mid string) Message {
 	return Message{
 		Head: "room.join.response",
 		Body: map[string](interface{}){
@@ -80,7 +80,7 @@ func JoinRoomReport(mid string) Message {
 	}
 }
 
-func KickRoomResponse(res bool) Message {
+func KickMemberResponse(res bool) Message {
 	return Message{
 		Head: "room.quit.response",
 		Body: map[string](interface{}){
@@ -89,7 +89,7 @@ func KickRoomResponse(res bool) Message {
 	}
 }
 
-func KickRoomReport(mid string) Message {
+func KickMemberReport(mid string) Message {
 	return Message{
 		Head: "room.kick.report",
 		Body: map[string](interface{}){

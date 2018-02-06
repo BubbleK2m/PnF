@@ -49,6 +49,10 @@ func (cli *Client) Close() {
 
 		rom.Quit(cli)
 		rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
+
+		if cli.Data["id"].(string) == rom.Data["master"].(string) {
+			delete(Rooms, rom.Data["id"].(string))
+		}
 	}
 
 	delete(Clients, cli.Data["id"].(string))
@@ -202,9 +206,29 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				rom.Join(cli, false)
-				rom.BroadCast(cli, JoinRoomReport(cli.Data["id"].(string)))
+				rom.BroadCast(cli, JoinMemberReport(cli.Data["id"].(string)))
 
 				cli.Output <- JoinRoomResponse(true, mems)
+			}
+		case "room.kick.request":
+			{
+				rom := Rooms[cli.Data["room"].(string)]
+
+				if rom == nil || cli.Data["id"].(string) == rom.Data["master"].(string) {
+					cli.Output <- KickMemberResponse(false)
+					break
+				}
+
+				mid := inp.Body["member"].(string)
+				mem := rom.Clients[mid]
+
+				if mem == nil {
+					cli.Output <- KickMemberResponse(false)
+					break
+				}
+
+				rom.Quit(mem)
+				rom.BroadCast(cli, KickMemberReport(mid))
 			}
 		case "room.quit.request":
 			{
@@ -215,8 +239,14 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 					break
 				}
 
+				id := cli.Data["id"].(string)
+
 				rom.Quit(cli)
-				rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
+				rom.BroadCast(cli, QuitRoomReport(id))
+
+				if id == rom.Data["master"].(string) {
+					delete(Rooms, rom.Data["id"].(string))
+				}
 
 				cli.Output <- QuitRoomResponse(true)
 			}
