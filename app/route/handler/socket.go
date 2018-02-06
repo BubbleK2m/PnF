@@ -16,10 +16,10 @@ func Socket() echo.HandlerFunc {
 		}
 
 		cli := socket.NewClient(con)
-		defer cli.Close()
 
 		cli.Handle()
-		
+		cli.Close()
+
 		return nil
 	}
 }
