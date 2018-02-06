@@ -29,10 +29,10 @@ class LobbyState extends GameState {
         let smallPanel=new UIPanel(Sprite.BROWN,startX+x*(width+xMargin), startY+y*(height+yMargin), width, height);
 
         let roomName=new UIButton(Sprite.VOID, 0, height/4, width, height/4, null);
-        roomName.setText(self.roomList[keys[i+self.currentPage*8]].RoomName);
+        roomName.setText(self.roomList[keys[i+self.currentPage*8]].name);
 
         let roomNum=new UIButton(Sprite.VOID, 0, height/1.5, width, height/4, null);
-        roomNum.setText(self.roomList[keys[i+self.currentPage*8]].UserNum+" players");
+        roomNum.setText(self.roomList[keys[i+self.currentPage*8]].member_cnt + " players");
 
         let btn=new UIButton(Sprite.HALF_VOID, 0, 0, width, height, {
           entered: function(uiButton) {
@@ -52,7 +52,7 @@ class LobbyState extends GameState {
               data.RoomID=roomID;
               networkManager.send(data);
             }
-          }(self.roomList[keys[i+self.currentPage*8]].RoomID , self.roomList[keys[i+self.currentPage*8]].RoomName , self.roomList[keys[i+self.currentPage*8]].UserNum)),
+          }(keys[i+self.currentPage*8] , self.roomList[keys[i+self.currentPage*8]].name , self.roomList[keys[i+self.currentPage*8]]["member_cnt"])),
 
           released: function(uiButton) {
             uiButton.label.setColor(0,0,0,0.1);
@@ -162,7 +162,7 @@ class LobbyState extends GameState {
 // 아직 나갈때 처리가 안됬다. 이건 서버에서 처리해야하는 부분
   messageProcess(message) {
     switch (message.Protocol) {
-      case "GetRoomList":{
+      case "room.list.request":{
         this.roomList=message.RoomList;
         this.reloadFunc(this.roomListPanel);
         console.log(this.roomList);

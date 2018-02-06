@@ -49,7 +49,7 @@ func (cli *Client) Close() {
 		rom := Rooms[cli.Data["room"].(string)]
 
 		rom.Quit(cli)
-		
+
 		if id == rom.Data["master"].(string) {
 			for mid, mem := range rom.Clients {
 				if id != mid {
@@ -249,7 +249,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				id := cli.Data["id"].(string)
-				
+
 				rom.Quit(cli)
 
 				if id == rom.Data["master"].(string) {
@@ -259,7 +259,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 							rom.Quit(mem)
 						}
 					}
-					
+
 					delete(Rooms, rom.Data["id"].(string))
 				} else {
 					rom.BroadCast(cli, QuitRoomReport(id))

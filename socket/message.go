@@ -51,12 +51,11 @@ func RoomListResponse(res bool, roms map[string](interface{})) Message {
 	}
 }
 
-func UpdateRoomReport(res bool, cnt int) Message {
+func UpdateRoomReport(cnt int) Message {
 	return Message{
 		Head: "room.update.report",
 		Body: map[string](interface{}){
-			"result": res,
-			"count":  cnt,
+			"count": cnt,
 		},
 	}
 }
