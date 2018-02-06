@@ -40,23 +40,18 @@ func (cli *Client) Handle() {
 func (cli *Client) Close() {
 	cli.Conn.Close()
 
-	cld := cli.Data
-
-	if cld["id"] == nil {
+	if cli.Data["id"] == nil {
 		return
 	}
 
-	id := cld["id"].(string)
-
-	if cld["room"] != nil {
-		nme := cld["room"].(string)
-		rom := Rooms[nme]
+	if cli.Data["room"] != nil {
+		rom := Rooms[cli.Data["room"].(float64)]
 
 		rom.Quit(cli)
-		rom.BroadCast(cli, QuitRoomReport(id))
+		rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
 	}
 
-	delete(Clients, id)
+	delete(Clients, cli.Data["id"].(string))
 }
 
 func (cli *Client) Read(wg *sync.WaitGroup) {
@@ -100,13 +95,11 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 		switch inp.Head {
 		case "auth.login.request":
 			{
-				inb := inp.Body
-				id, pw := inb["id"].(string), inb["pw"].(string)
+				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
 
-				db := model.DB
 				usr := model.User{}
 
-				err := db.Where("id = ? AND pw = ?", id, pw).First(&usr).Error
+				err := model.DB.Where("id = ? AND pw = ?", id, pw).First(&usr).Error
 
 				if err != nil {
 					app.Echo.Logger.Error(err)
@@ -124,13 +117,11 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "auth.register.request":
 			{
-				inb := inp.Body
-				id, pw := inb["id"].(string), inb["pw"].(string)
+				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
 
-				db := model.DB
 				usr := model.User{id, pw}
 
-				err := db.Create(&usr).Error
+				err := model.DB.Create(&usr).Error
 
 				if err != nil {
 					app.Echo.Logger.Error(err)
