@@ -41,7 +41,7 @@ func CreateRoomResponse(res bool) Message {
 	}
 }
 
-func RoomListResponse(res bool, roms map[float64](interface{})) Message {
+func RoomListResponse(res bool, roms map[string](interface{})) Message {
 	return Message{
 		Head: "room.list.response",
 		Body: map[string](interface{}){
@@ -61,7 +61,7 @@ func UpdateRoomReport(res bool, cnt int) Message {
 	}
 }
 
-func JoinRoomResponse(res bool, mems map[string]map[string]interface{}) Message {
+func JoinRoomResponse(res bool, mems map[string]interface{}) Message {
 	return Message{
 		Head: "room.join.response",
 		Body: map[string](interface{}){

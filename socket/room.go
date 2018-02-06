@@ -1,6 +1,9 @@
 package socket
 
-import "math/rand"
+import (
+	"math/rand"
+	"strconv"
+)
 
 type Room struct {
 	Data    map[string](interface{})
@@ -13,7 +16,7 @@ func NewRoom(nme string) *Room {
 		Clients: make(map[string]*Client),
 	}
 
-	rom.Data["id"] = rand.Float64()
+	rom.Data["id"] = strconv.FormatFloat(rand.Float64(), 'f', -1, 64)
 	rom.Data["name"] = nme
 
 	return rom

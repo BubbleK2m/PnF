@@ -45,7 +45,7 @@ func (cli *Client) Close() {
 	}
 
 	if cli.Data["room"] != nil {
-		rom := Rooms[cli.Data["room"].(float64)]
+		rom := Rooms[cli.Data["room"].(string)]
 
 		rom.Quit(cli)
 		rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
@@ -161,13 +161,13 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				rom.Data["master"] = cli.Data["id"].(string)
 				rom.Data["playing"] = false
 
-				Rooms[rom.Data["id"].(float64)] = rom
+				Rooms[rom.Data["id"].(string)] = rom
 
 				cli.Output <- CreateRoomResponse(true)
 			}
 		case "room.list.request":
 			{
-				roms := make(map[float64](interface{}))
+				roms := make(map[string](interface{}))
 
 				for id, rom := range Rooms {
 					inf := make(map[string](interface{}))
@@ -183,20 +183,22 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.join.request":
 			{
-				rom := Rooms[inp.Body["id"].(float64)]
+				rom := Rooms[inp.Body["id"].(string)]
 
 				if rom == nil {
 					cli.Output <- JoinRoomResponse(false, nil)
 					break
 				}
 
-				mems := make(map[string]map[string]interface{})
+				mems := make(map[string](interface{}))
 
 				for id, cli := range rom.Clients {
-					chr := cli.Data["character"].(int)
+					inf := make(map[string](interface{}))
 
-					mems[id]["is_master"] = (id == rom.Data["master"].(string))
-					mems[id]["current_character"] = chr
+					inf["is_master"] = (id == rom.Data["master"].(string))
+					inf["current_character"] = cli.Data["character"].(int)
+
+					mems[id] = inf
 				}
 
 				rom.Join(cli, false)
@@ -206,7 +208,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.quit.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 
 				if rom == nil {
 					cli.Output <- QuitRoomResponse(false)
@@ -220,7 +222,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.chat.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)))
 
 				cli.Output <- ChatResponse(true)
@@ -230,21 +232,21 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				idx := inp.Body["index"].(int)
 				cli.Data["character"] = idx
 
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, SwitchCharacterReport(cli.Data["id"].(string), idx))
 
 				cli.Output <- SwitchCharacterResponse(true)
 			}
 		case "game.ready.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)))
 
 				cli.Output <- ReadyGameResponse(true)
 			}
 		case "game.start.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 
 				if cli.Data["id"].(string) != rom.Data["master"].(string) {
 					cli.Output <- StartGameResponse(false)
@@ -258,28 +260,28 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "char.move.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, MoveCharacterReport(cli.Data["id"].(string), inp.Body["direction"].(int)))
 
 				cli.Output <- MoveCharacterResponse(true)
 			}
 		case "char.jump.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, JumpCharacterReport(cli.Data["id"].(string)))
 
 				cli.Output <- JumpCharacterResponse(true)
 			}
 		case "char.sync.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, SyncCharacterReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
 
 				cli.Output <- SyncCharacterResponse(true)
 			}
 		case "char.shoot.request":
 			{
-				rom := Rooms[cli.Data["room"].(float64)]
+				rom := Rooms[cli.Data["room"].(string)]
 				rom.BroadCast(cli, ShootBulletReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
 
 				cli.Output <- ShootBulletResponse(true)
