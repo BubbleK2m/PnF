@@ -162,68 +162,60 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.create.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme := cld["id"].(string), inb["name"].(string)
+				nme := inp.Body["name"].(string)
 
-				rom := Rooms[nme]
-
-				if rom != nil {
+				if Rooms[nme] != nil {
 					cli.Output <- CreateRoomResponse(false)
 					break
 				}
 
-				rom = NewRoom(nme)
-
+				rom := NewRoom(nme)
 				rom.Join(cli, true)
-				rom.Data["master"] = id
+
+				rom.Data["master"] = cli.Data["id"].(string)
+				rom.Data["playing"] = false
 
 				Rooms[nme] = rom
+
 				cli.Output <- CreateRoomResponse(true)
 			}
 		case "room.list.request":
 			{
-				roms := make(map[string]int)
+				roms := make(map[string]map[string]interface{})
 
 				for nme, rom := range Rooms {
-					roms[nme] = len(rom.Clients)
+					roms[nme]["members"] = len(rom.Clients)
+					roms[nme]["is_playing"] = rom.Data["playing"].(bool)
 				}
 
 				cli.Output <- RoomListResponse(true, roms)
 			}
 		case "room.join.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme := cld["id"].(string), inb["name"].(string)
-
-				rom := Rooms[nme]
+				rom := Rooms[inp.Body["name"].(string)]
 
 				if rom == nil {
 					cli.Output <- JoinRoomResponse(false, nil)
 					break
 				}
 
-				mas := rom.Data["master"].(string)
 				mems := make(map[string]map[string]interface{})
 
 				for id, cli := range rom.Clients {
-					cld := cli.Data
-					chr := cld["character"].(int)
+					chr := cli.Data["character"].(int)
 
-					mems[id]["is_master"] = (id == mas)
+					mems[id]["is_master"] = (id == rom.Data["master"].(string))
 					mems[id]["current_character"] = chr
 				}
 
 				rom.Join(cli, false)
-				rom.BroadCast(cli, JoinRoomReport(id))
+				rom.BroadCast(cli, JoinRoomReport(cli.Data["id"].(string)))
 
 				cli.Output <- JoinRoomResponse(true, mems)
 			}
 		case "room.quit.request":
 			{
-				cld := cli.Data
-				nme, id := cld["room"].(string), cld["id"].(string)
-
-				rom := Rooms[nme]
+				rom := Rooms[cli.Data["room"].(string)]
 
 				if rom == nil {
 					cli.Output <- QuitRoomResponse(false)
@@ -231,17 +223,14 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				rom.Quit(cli)
-				rom.BroadCast(cli, QuitRoomReport(id))
+				rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
 
 				cli.Output <- QuitRoomResponse(true)
 			}
 		case "room.chat.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, msg := cld["id"].(string), cld["room"].(string), inb["message"].(string)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, ChatReport(id, msg))
+				rom := Rooms[cli.Data["room"].(string)]
+				rom.BroadCast(cli, ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)))
 
 				cli.Output <- ChatResponse(true)
 			}
@@ -279,6 +268,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 					cli.Output <- StartGameResponse(false)
 					break
 				}
+
+				rom.Data["playing"] = true
 
 				rom.BroadCast(cli, StartGameReport())
 				cli.Output <- StartGameResponse(true)

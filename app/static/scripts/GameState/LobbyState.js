@@ -132,13 +132,16 @@ class LobbyState extends GameState {
     mainPanel.addComponent(this.roomListPanel);
     uiManager.addPanel(mainPanel);
 
-    var data={};
-    data.Protocol="GetRoomList";
+    var data={
+      head: "room.list.request"
+    };
+
     networkManager.send(data);
   }
 
   reset() {
     uiManager.clear();
+
     this.currentPage=0;
     this.roomList={};
     this.maxPage=0;
@@ -153,12 +156,12 @@ class LobbyState extends GameState {
     if(isKeyPressed(67)){
       gsm.setState(GameState.CREATE_ROOM_STATE);
     }
+    
     uiManager.update();
   }
 // 아직 나갈때 처리가 안됬다. 이건 서버에서 처리해야하는 부분
   messageProcess(message) {
     switch (message.Protocol) {
-
       case "GetRoomList":{
         this.roomList=message.RoomList;
         this.reloadFunc(this.roomListPanel);
