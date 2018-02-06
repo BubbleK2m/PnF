@@ -167,12 +167,16 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.list.request":
 			{
-				roms := make(map[float64]map[string]interface{})
+				roms := make(map[float64](interface{}))
 
 				for id, rom := range Rooms {
-					roms[id]["name"] = rom.Data["name"].(string)
-					roms[id]["is_playing"] = rom.Data["playing"].(bool)
-					roms[id]["member_cnt"] = len(rom.Clients)
+					inf := make(map[string](interface{}))
+
+					inf["name"] = rom.Data["name"].(string)
+					inf["is_playing"] = rom.Data["playing"].(bool)
+					inf["member_cnt"] = len(rom.Clients)
+
+					roms[id] = inf
 				}
 
 				cli.Output <- RoomListResponse(true, roms)

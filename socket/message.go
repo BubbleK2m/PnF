@@ -41,7 +41,7 @@ func CreateRoomResponse(res bool) Message {
 	}
 }
 
-func RoomListResponse(res bool, roms map[float64]map[string]interface{}) Message {
+func RoomListResponse(res bool, roms map[float64](interface{})) Message {
 	return Message{
 		Head: "room.list.response",
 		Body: map[string](interface{}){
@@ -52,7 +52,7 @@ func RoomListResponse(res bool, roms map[float64]map[string]interface{}) Message
 }
 
 func UpdateRoomReport(res bool, cnt int) Message {
-	return Message {
+	return Message{
 		Head: "room.update.report",
 		Body: map[string](interface{}){
 			"result": res,
