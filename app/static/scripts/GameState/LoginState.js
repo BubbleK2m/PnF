@@ -79,9 +79,11 @@ class LoginState extends GameState {
       },
       released: function(uiButton) {
         var data={};
-        data.Protocol="Login";
-        data.Id=self.idText.textLabel.text;
-        data.Password=self.passwordText.textLabel.text;
+
+        data.head="auth.login.request";
+        data.body.id=self.idText.textLabel.text;
+        data.body.id=self.passwordText.textLabel.text;
+        
         networkManager.send(data);
       }
     });

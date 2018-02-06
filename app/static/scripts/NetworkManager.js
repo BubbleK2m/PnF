@@ -23,7 +23,6 @@ class NetworkManager {
       var data = JSON.parse(message.data);
       self.buffer.push(data);
     };
-
   }
 
   /**
