@@ -61,7 +61,7 @@ func (cli *Client) Close() {
 			delete(Rooms, rom.Data["id"].(string))
 		} else {
 			rom.BroadCast(cli, QuitRoomReport(id))
-		}s
+		}
 	}
 
 	delete(Clients, cli.Data["id"].(string))
