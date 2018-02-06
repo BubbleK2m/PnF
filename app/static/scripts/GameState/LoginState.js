@@ -78,11 +78,13 @@ class LoginState extends GameState {
         uiButton.label.setColor(0,0,0,0.2);
       },
       released: function(uiButton) {
-        var data={};
-
-        data.head="auth.login.request";
-        data.body.id=self.idText.textLabel.text;
-        data.body.id=self.passwordText.textLabel.text;
+        var data={
+          head: "auth.login.request",
+          body: {
+            id: self.idText.textLabel.text,
+            pw: self.passwordText.textLabel.text
+          }
+        };
         
         networkManager.send(data);
       }
