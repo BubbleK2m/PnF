@@ -110,11 +110,10 @@ class LoginState extends GameState {
   }
 
   messageProcess(message) {
-    switch (message.Protocol) {
+    switch (message.head) {
 
-      case "LoginResult":{
-        if(message.Value){
-          gsm.cookie.UserID=this.idText.textLabel.text;
+      case "auth.login.response":{
+        if(message.body.result){
           gsm.setState(GameState.LOBBY_STATE);
         }else {
           this.idText.setText("");
@@ -122,8 +121,7 @@ class LoginState extends GameState {
         }
       }break;
 
-      default:console.log("UnknownProtocol",message);
-
+      default:console.log("Unknown Head",message);
     }
   }
 
