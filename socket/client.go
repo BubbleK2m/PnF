@@ -329,6 +329,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 func (cli *Client) Write(wg *sync.WaitGroup) {
 	defer func() {
+		cli.Close()
 		wg.Done()
 	}()
 

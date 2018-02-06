@@ -18,7 +18,6 @@ func Socket() echo.HandlerFunc {
 		cli := socket.NewClient(con)
 
 		cli.Handle()
-		cli.Close()
 
 		return nil
 	}
