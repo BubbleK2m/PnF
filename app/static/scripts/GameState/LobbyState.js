@@ -45,13 +45,17 @@ class LobbyState extends GameState {
 
           //클로저 사용
 
-          pressed: (function(roomID,name,num){
+          pressed: (function(id,name,num){
             return function(uiButton) {
               uiButton.label.setColor(0,0,0,0.2);
 
-              let data={};
-              data.Protocol="JoinRoomRequest";
-              data.RoomID=roomID;
+              let data = {
+                head: "room.join.request",
+                body: {
+                  "id": id
+                }
+              };
+
               networkManager.send(data);
             }
           }(keys[i+self.currentPage*8], self.roomList[keys[i+self.currentPage*8]].name, self.roomList[keys[i+self.currentPage*8]]["member_cnt"])),
@@ -170,7 +174,7 @@ class LobbyState extends GameState {
         console.log(this.roomList);
       }break;
 
-      case "AddRoom":{
+      case "room.create.report":{
         let room=message.Room;
         this.roomList[room.RoomID]=room;
         this.reloadFunc(this.roomListPanel);
@@ -207,7 +211,6 @@ class LobbyState extends GameState {
       }break;
 
       default:console.log("UnknownProtocol",message);
-
     }
   }
 
