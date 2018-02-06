@@ -39,7 +39,7 @@ func (rom *Room) Quit(cli *Client) {
 
 func (rom *Room) BroadCast(cli *Client, msg Message) {
 	for mid, mem := range rom.Clients {
-		if cli.Data["id"].(string) != mem.Data["id"].(string) {
+		if cli.Data["id"].(string) != mid {
 			cli.Output <- msg
 		}
 	}

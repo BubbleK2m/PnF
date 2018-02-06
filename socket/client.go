@@ -49,17 +49,19 @@ func (cli *Client) Close() {
 		rom := Rooms[cli.Data["room"].(string)]
 
 		rom.Quit(cli)
-		rom.BroadCast(cli, QuitRoomReport(id))
-
+		
 		if id == rom.Data["master"].(string) {
 			for mid, mem := range rom.Clients {
 				if id != mid {
 					mem.Output <- KickMemberReport(mid)
+					rom.Quit(mem)
 				}
 			}
 
 			delete(Rooms, rom.Data["id"].(string))
-		}
+		} else {
+			rom.BroadCast(cli, QuitRoomReport(id))
+		}s
 	}
 
 	delete(Clients, cli.Data["id"].(string))
@@ -247,17 +249,19 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				id := cli.Data["id"].(string)
+				
+				rom.Quit(cli)
 
 				if id == rom.Data["master"].(string) {
 					for mid, mem := range rom.Clients {
 						if id != mid {
 							mem.Output <- KickMemberReport(mid)
+							rom.Quit(mem)
 						}
 					}
-
+					
 					delete(Rooms, rom.Data["id"].(string))
 				} else {
-					rom.Quit(cli)
 					rom.BroadCast(cli, QuitRoomReport(id))
 				}
 
