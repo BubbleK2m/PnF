@@ -57,7 +57,7 @@ func UpdateRoomReport(res bool, cnt int) Message {
 		Body: map[string](interface{}){
 			"result": res,
 			"count":  cnt,
-		}
+		},
 	}
 }
 
