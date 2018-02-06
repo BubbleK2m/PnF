@@ -37,18 +37,10 @@ func (rom *Room) Quit(cli *Client) {
 	cli.Data["room"] = nil
 }
 
-func (rom *Room) Message(msg Message, flt func(*Client) bool) {
-	for _, cli := range rom.Clients {
-		if flt(cli) {
+func (rom *Room) BroadCast(cli *Client, msg Message) {
+	for mid, mem := range rom.Clients {
+		if cli.Data["id"].(string) != mem.Data["id"].(string) {
 			cli.Output <- msg
 		}
 	}
-}
-
-func (rom *Room) BroadCast(cli *Client, msg Message) {
-	flt := func(mem *Client) bool {
-		return (cli.Data["id"].(string) != mem.Data["id"].(string))
-	}
-
-	rom.Message(msg, flt)
 }

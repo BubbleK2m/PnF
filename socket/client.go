@@ -45,12 +45,19 @@ func (cli *Client) Close() {
 	}
 
 	if cli.Data["room"] != nil {
+		id := cli.Data["id"].(string)
 		rom := Rooms[cli.Data["room"].(string)]
 
 		rom.Quit(cli)
-		rom.BroadCast(cli, QuitRoomReport(cli.Data["id"].(string)))
+		rom.BroadCast(cli, QuitRoomReport(id))
 
-		if cli.Data["id"].(string) == rom.Data["master"].(string) {
+		if id == rom.Data["master"].(string) {
+			for mid, mem := range rom.Clients {
+				if id != mid {
+					mem.Output <- KickMemberReport(mid)
+				}
+			}
+
 			delete(Rooms, rom.Data["id"].(string))
 		}
 	}
@@ -241,11 +248,17 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 				id := cli.Data["id"].(string)
 
-				rom.Quit(cli)
-				rom.BroadCast(cli, QuitRoomReport(id))
-
 				if id == rom.Data["master"].(string) {
+					for mid, mem := range rom.Clients {
+						if id != mid {
+							mem.Output <- KickMemberReport(mid)
+						}
+					}
+
 					delete(Rooms, rom.Data["id"].(string))
+				} else {
+					rom.Quit(cli)
+					rom.BroadCast(cli, QuitRoomReport(id))
 				}
 
 				cli.Output <- QuitRoomResponse(true)
