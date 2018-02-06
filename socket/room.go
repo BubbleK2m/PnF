@@ -1,5 +1,7 @@
 package socket
 
+import "math/rand"
+
 type Room struct {
 	Data    map[string](interface{})
 	Clients map[string]*Client
@@ -11,7 +13,9 @@ func NewRoom(nme string) *Room {
 		Clients: make(map[string]*Client),
 	}
 
+	rom.Data["id"] = rand.Float64()
 	rom.Data["name"] = nme
+
 	return rom
 }
 
@@ -19,7 +23,7 @@ func (rom *Room) Join(cli *Client, mas bool) {
 	id := cli.Data["id"].(string)
 	rom.Clients[id] = cli
 
-	cli.Data["room"] = rom.Data["name"].(string)
+	cli.Data["room"] = rom.Data["id"].(float64)
 	cli.Data["character"] = 0
 }
 
@@ -27,7 +31,7 @@ func (rom *Room) Quit(cli *Client) {
 	id := cli.Data["id"].(string)
 	delete(rom.Clients, id)
 
-	cli.Data["room"] = ""
+	cli.Data["room"] = nil
 }
 
 func (rom *Room) Message(msg Message, flt func(*Client) bool) {

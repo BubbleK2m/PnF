@@ -9,11 +9,11 @@ import (
 var (
 	Upgrader *websocket.Upgrader
 	Clients  map[string]*Client
-	Rooms    map[string]*Room
+	Rooms    map[float64]*Room
 )
 
 func Init() {
 	Upgrader = support.NewUpgrader()
 	Clients = make(map[string]*Client)
-	Rooms = make(map[string]*Room)
+	Rooms = make(map[float64]*Room)
 }

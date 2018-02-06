@@ -164,35 +164,31 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			{
 				nme := inp.Body["name"].(string)
 
-				if Rooms[nme] != nil {
-					cli.Output <- CreateRoomResponse(false)
-					break
-				}
-
 				rom := NewRoom(nme)
 				rom.Join(cli, true)
 
 				rom.Data["master"] = cli.Data["id"].(string)
 				rom.Data["playing"] = false
 
-				Rooms[nme] = rom
+				Rooms[rom.Data["id"].(float64)] = rom
 
 				cli.Output <- CreateRoomResponse(true)
 			}
 		case "room.list.request":
 			{
-				roms := make(map[string]map[string]interface{})
+				roms := make(map[float64]map[string]interface{})
 
-				for nme, rom := range Rooms {
-					roms[nme]["members"] = len(rom.Clients)
-					roms[nme]["is_playing"] = rom.Data["playing"].(bool)
+				for id, rom := range Rooms {
+					roms[id]["name"] = rom.Data["name"].(string)
+					roms[id]["is_playing"] = rom.Data["playing"].(bool)
+					roms[id]["member_cnt"] = len(rom.Clients)
 				}
 
 				cli.Output <- RoomListResponse(true, roms)
 			}
 		case "room.join.request":
 			{
-				rom := Rooms[inp.Body["name"].(string)]
+				rom := Rooms[inp.Body["id"].(float64)]
 
 				if rom == nil {
 					cli.Output <- JoinRoomResponse(false, nil)
@@ -215,7 +211,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.quit.request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
+				rom := Rooms[cli.Data["room"].(float64)]
 
 				if rom == nil {
 					cli.Output <- QuitRoomResponse(false)
@@ -229,88 +225,67 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.chat.request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
+				rom := Rooms[cli.Data["room"].(float64)]
 				rom.BroadCast(cli, ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)))
 
 				cli.Output <- ChatResponse(true)
 			}
 		case "char.switch.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, idx := cld["id"].(string), cld["room"].(string), inb["index"].(int)
-
+				idx := inp.Body["index"].(int)
 				cli.Data["character"] = idx
 
-				rom := Rooms[nme]
-				rom.BroadCast(cli, SwitchCharacterReport(id, idx))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, SwitchCharacterReport(cli.Data["id"].(string), idx))
 
 				cli.Output <- SwitchCharacterResponse(true)
 			}
 		case "game.ready.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, rdy := cld["id"].(string), cld["room"].(string), inb["ready"].(bool)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, ReadyGameReport(id, rdy))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)))
 
 				cli.Output <- ReadyGameResponse(true)
 			}
 		case "game.start.request":
 			{
-				cld := cli.Data
-				id, nme := cld["id"].(string), cld["room"].(string)
+				rom := Rooms[cli.Data["room"].(float64)]
 
-				rom := Rooms[nme]
-				mas := rom.Data["master"].(string)
-
-				if id != mas {
+				if cli.Data["id"].(string) != rom.Data["master"].(string) {
 					cli.Output <- StartGameResponse(false)
 					break
 				}
 
 				rom.Data["playing"] = true
-
 				rom.BroadCast(cli, StartGameReport())
+
 				cli.Output <- StartGameResponse(true)
 			}
 		case "char.move.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, dir := cld["id"].(string), cld["room"].(string), inb["direction"].(int)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, MoveCharacterReport(id, dir))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, MoveCharacterReport(cli.Data["id"].(string), inp.Body["direction"].(int)))
 
 				cli.Output <- MoveCharacterResponse(true)
 			}
 		case "char.jump.request":
 			{
-				cld := cli.Data
-				id, nme := cld["id"].(string), cld["room"].(string)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, JumpCharacterReport(id))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, JumpCharacterReport(cli.Data["id"].(string)))
 
 				cli.Output <- JumpCharacterResponse(true)
 			}
 		case "char.sync.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, x, y := cld["id"].(string), cld["room"].(string), inb["x"].(int), inb["y"].(int)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, SyncCharacterReport(id, x, y))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, SyncCharacterReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
 
 				cli.Output <- SyncCharacterResponse(true)
 			}
 		case "char.shoot.request":
 			{
-				cld, inb := cli.Data, inp.Body
-				id, nme, x, y := cld["id"].(string), cld["room"].(string), inb["x"].(int), inb["y"].(int)
-
-				rom := Rooms[nme]
-				rom.BroadCast(cli, ShootBulletReport(id, x, y))
+				rom := Rooms[cli.Data["room"].(float64)]
+				rom.BroadCast(cli, ShootBulletReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
 
 				cli.Output <- ShootBulletResponse(true)
 			}
