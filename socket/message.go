@@ -72,7 +72,7 @@ func JoinRoomResponse(res bool, mems map[string]interface{}) Message {
 
 func JoinMemberReport(mid string) Message {
 	return Message{
-		Head: "room.join.response",
+		Head: "room.join.report",
 		Body: map[string](interface{}){
 			"member": mid,
 		},

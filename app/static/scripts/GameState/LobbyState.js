@@ -32,7 +32,7 @@ class LobbyState extends GameState {
         roomName.setText(self.roomList[keys[i+self.currentPage*8]].name);
 
         let roomNum=new UIButton(Sprite.VOID, 0, height/1.5, width, height/4, null);
-        roomNum.setText(self.roomList[keys[i+self.currentPage*8]].member_cnt + " players");
+        roomNum.setText(self.roomList[keys[i+self.currentPage*8]]["member_cnt"] + " players");
 
         let btn=new UIButton(Sprite.HALF_VOID, 0, 0, width, height, {
           entered: function(uiButton) {
@@ -42,7 +42,9 @@ class LobbyState extends GameState {
           exited: function(uiButton) {
             uiButton.label.setColor(0,0,0,0.0);
           },
+
           //클로저 사용
+
           pressed: (function(roomID,name,num){
             return function(uiButton) {
               uiButton.label.setColor(0,0,0,0.2);
@@ -52,7 +54,7 @@ class LobbyState extends GameState {
               data.RoomID=roomID;
               networkManager.send(data);
             }
-          }(keys[i+self.currentPage*8] , self.roomList[keys[i+self.currentPage*8]].name , self.roomList[keys[i+self.currentPage*8]]["member_cnt"])),
+          }(keys[i+self.currentPage*8], self.roomList[keys[i+self.currentPage*8]].name, self.roomList[keys[i+self.currentPage*8]]["member_cnt"])),
 
           released: function(uiButton) {
             uiButton.label.setColor(0,0,0,0.1);
