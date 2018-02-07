@@ -169,7 +169,7 @@ class LobbyState extends GameState {
   messageProcess(message) {
     switch (message.head) {
       case "room.list.response":{
-        if (messsage.body.result) {
+        if (message.body.result) {
           this.roomList=message.body.rooms;
           this.reloadFunc(this.roomListPanel);
           
