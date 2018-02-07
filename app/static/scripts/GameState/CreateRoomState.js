@@ -72,7 +72,6 @@ class CreateRoomState extends GameState {
 
   messageProcess(message) {
     switch (message.head) {
-
       case "room.create.result":{
         if(message.body.result)
           gsm.setState(GameState.IN_ROOM_STATE,{
@@ -83,8 +82,7 @@ class CreateRoomState extends GameState {
         }
       }break;
 
-      default:console.log("UnknownProtocol",message);
-
+      default:console.log("Unknown Head",message);
     }
   }
 

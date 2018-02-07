@@ -23,8 +23,16 @@ func NewRoom(nme string) *Room {
 }
 
 func (rom *Room) Join(cli *Client, mas bool) {
+	if cli.Data["room"].(string) == Lobby.Data["id"].(string) {
+		Lobby.Quit(cli)
+	}
+
 	id := cli.Data["id"].(string)
 	rom.Clients[id] = cli
+
+	if mas {
+		rom.Data["master"] = cli.Data["id"].(string)
+	}
 
 	cli.Data["room"] = rom.Data["id"].(string)
 	cli.Data["character"] = 0
@@ -37,10 +45,24 @@ func (rom *Room) Quit(cli *Client) {
 	cli.Data["room"] = nil
 }
 
-func (rom *Room) BroadCast(cli *Client, msg Message) {
-	for mid, mem := range rom.Clients {
-		if cli.Data["id"].(string) != mid {
-			mem.Output <- msg
+func (rom *Room) ForEach(act func(*Client)) {
+	for _, cli := range rom.Clients {
+		act(cli)
+	}
+}
+
+func (rom *Room) MultiCast(msg Message, flt func(*Client) bool) {
+	rom.ForEach(func(cli *Client) {
+		if flt(cli) {
+			cli.Output <- msg
+		}
+	})
+}
+
+func BroadCast(msg Message, flt func(*Client) bool) {
+	for id, cli := range Clients {
+		if flt(cli) {
+			cli.Output <- msg
 		}
 	}
 }

@@ -168,27 +168,41 @@ class LobbyState extends GameState {
 // 아직 나갈때 처리가 안됬다. 이건 서버에서 처리해야하는 부분
   messageProcess(message) {
     switch (message.head) {
-      case "room.list.request":{
-        this.roomList=message.RoomList;
+      case "room.list.response":{
+        this.roomList=message.rooms;
         this.reloadFunc(this.roomListPanel);
         console.log(this.roomList);
       }break;
 
-      case "AddRoom":{
-        let room=message.Room;
-        this.roomList[room.RoomID]=room;
+      
+
+      case "room.create.report":{
+        let room=message.body.room;
+        let roomID=room.id;
+        
+        this.roomList[roomID] = room;
         this.reloadFunc(this.roomListPanel);
       }break;
 
-      case "RemoveRoom":{
-        let roomID=message.RoomID;
+      case "room.remove.report":{
+        let roomID=message.body.room;
+        
         delete this.roomList[roomID];
         this.reloadFunc(this.roomListPanel);
       }break;
 
-      case "JoinRoomResult":{
-        //Status:0=정상처리,-1=인원수 초과
-        if(message.Status>=0){
+      case "room.update.report":{
+        let roomID=message.body.room;
+        let userNum=message.body["member_cnt"];
+
+        if (roomList[roomID]) {
+          this.roomList[roomID]["member_cnt"]=userNum;
+          this.reloadFunc(this.roomListPanel);
+        }
+      }break;
+
+      case "room.join.response":{
+        if(message.body.result){
           gsm.setState(GameState.IN_ROOM_STATE,{
             Room:message.Room
           });
@@ -197,21 +211,7 @@ class LobbyState extends GameState {
         }
       }break;
 
-      case "StartGameReport":{
-        let roomID=message.RoomID;
-        delete this.roomList[roomID];
-        this.reloadFunc(this.roomListPanel);
-      }break;
-
-      case "UpdateRoomCurrentUserNum":{
-        let roomID=message.RoomID;
-        let userNum=message.UserNum;
-        this.roomList[roomID].UserNum=userNum;
-        this.reloadFunc(this.roomListPanel);
-      }break;
-
       default:console.log("UnknownProtocol",message);
-
     }
   }
 

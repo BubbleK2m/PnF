@@ -41,6 +41,24 @@ func CreateRoomResponse(res bool) Message {
 	}
 }
 
+func CreateRoomReport(rom map[string](interface{})) Message {
+	return Message{
+		Head: "room.create.response",
+		Body: map[string](interface{}){
+			"room": rom,
+		},
+	}
+}
+
+func RemoveRoomReport(rid string) Message {
+	return Message{
+		Head: "room.remove.report",
+		Body: map[string](interface{}){
+			"room": rid,
+		},
+	}
+}
+
 func RoomListResponse(res bool, roms map[string](interface{})) Message {
 	return Message{
 		Head: "room.list.response",
@@ -51,11 +69,12 @@ func RoomListResponse(res bool, roms map[string](interface{})) Message {
 	}
 }
 
-func UpdateRoomReport(cnt int) Message {
+func UpdateRoomReport(rid string, cnt int) Message {
 	return Message{
 		Head: "room.update.report",
 		Body: map[string](interface{}){
-			"count": cnt,
+			"room":       rid,
+			"member_cnt": cnt,
 		},
 	}
 }

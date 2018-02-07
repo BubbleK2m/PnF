@@ -51,17 +51,23 @@ func (cli *Client) Close() {
 		rom.Quit(cli)
 
 		if id == rom.Data["master"].(string) {
-			for mid, mem := range rom.Clients {
-				if id != mid {
-					mem.Output <- KickMemberReport(mid)
-					rom.Quit(mem)
+			rom.ForEach(func(cli *Client) {
+				if id != cli.Data["id"].(string) {
+					cli.Output <- KickMemberReport(cli.Data["id"].(string))
+					rom.Quit(cli)
 				}
-			}
+			})
 
 			delete(Rooms, rom.Data["id"].(string))
 		} else {
-			rom.BroadCast(cli, QuitRoomReport(id))
+			rom.MultiCast(QuitRoomReport(id), func(cli *Client) bool {
+				return id != cli.Data["id"].(string)
+			})
 		}
+
+		BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
+			return mem.Data["room"] == nil
+		})
 	}
 
 	delete(Clients, cli.Data["id"].(string))
@@ -111,7 +117,6 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
 
 				usr := model.User{}
-
 				err := model.DB.Where("id = ? AND pw = ?", id, pw).First(&usr).Error
 
 				if err != nil {
@@ -133,7 +138,6 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
 
 				usr := model.User{id, pw}
-
 				err := model.DB.Create(&usr).Error
 
 				if err != nil {
@@ -147,8 +151,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "auth.check.request":
 			{
-				inb := inp.Body
-				id := inb["id"].(string)
+				id := inp.Body["id"].(string)
 
 				db := model.DB
 				usr := model.User{}
@@ -177,6 +180,16 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				Rooms[rom.Data["id"].(string)] = rom
 
 				cli.Output <- CreateRoomResponse(true)
+
+				inf := make(map[string]interface{})
+
+				inf["id"] = rom.Data["id"].(string)
+				inf["name"] = rom.Data["name"].(string)
+				inf["member_cnt"] = len(rom.Clients)
+
+				BroadCast(CreateRoomReport(inf), func(mem *Client) bool {
+					return mem.Data["room"] == nil
+				})
 			}
 		case "room.list.request":
 			{
@@ -215,7 +228,14 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				rom.Join(cli, false)
-				rom.BroadCast(cli, JoinMemberReport(cli.Data["id"].(string)))
+
+				rom.MultiCast(JoinMemberReport(cli.Data["id"].(string)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
+
+				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
+					return mem.Data["room"] == nil
+				})
 
 				cli.Output <- JoinRoomResponse(true, mems)
 			}
@@ -237,7 +257,14 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				rom.Quit(mem)
-				rom.BroadCast(cli, KickMemberReport(mid))
+
+				rom.MultiCast(KickMemberReport(mid), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
+
+				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
+					return mem.Data["room"] == nil
+				})
 			}
 		case "room.quit.request":
 			{
@@ -261,8 +288,18 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 					}
 
 					delete(Rooms, rom.Data["id"].(string))
+
+					BroadCast(RemoveRoomReport(rom.Data["id"].(string)), func(mem *Client) bool {
+						return mem.Data["room"] == nil
+					})
 				} else {
-					rom.BroadCast(cli, QuitRoomReport(id))
+					rom.MultiCast(QuitRoomReport(id), func(mem *Client) bool {
+						return cli.Data["id"].(string) != mem.Data["id"].(string)
+					})
+
+					BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
+						return mem.Data["room"] == nil
+					})
 				}
 
 				cli.Output <- QuitRoomResponse(true)
@@ -270,7 +307,10 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 		case "room.chat.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)))
+
+				rom.MultiCast(ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- ChatResponse(true)
 			}
@@ -280,14 +320,20 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				cli.Data["character"] = idx
 
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, SwitchCharacterReport(cli.Data["id"].(string), idx))
+
+				rom.MultiCast(SwitchCharacterReport(cli.Data["id"].(string), idx), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- SwitchCharacterResponse(true)
 			}
 		case "game.ready.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)))
+
+				rom.MultiCast(ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- ReadyGameResponse(true)
 			}
@@ -301,35 +347,50 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				}
 
 				rom.Data["playing"] = true
-				rom.BroadCast(cli, StartGameReport())
+
+				rom.MultiCast(StartGameReport(), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- StartGameResponse(true)
 			}
 		case "char.move.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, MoveCharacterReport(cli.Data["id"].(string), inp.Body["direction"].(int)))
+
+				rom.MultiCast(MoveCharacterReport(cli.Data["id"].(string), inp.Body["direction"].(int)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- MoveCharacterResponse(true)
 			}
 		case "char.jump.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, JumpCharacterReport(cli.Data["id"].(string)))
+
+				rom.MultiCast(JumpCharacterReport(cli.Data["id"].(string)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- JumpCharacterResponse(true)
 			}
 		case "char.sync.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, SyncCharacterReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
+
+				rom.MultiCast(SyncCharacterReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- SyncCharacterResponse(true)
 			}
 		case "char.shoot.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
-				rom.BroadCast(cli, ShootBulletReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)))
+
+				rom.MultiCast(ShootBulletReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
 
 				cli.Output <- ShootBulletResponse(true)
 			}

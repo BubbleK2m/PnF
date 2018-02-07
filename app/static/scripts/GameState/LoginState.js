@@ -118,6 +118,7 @@ class LoginState extends GameState {
 
       case "auth.login.response":{
         if(message.body.result){
+          gsm.cookie.id = this.idText.textLabel.text
           gsm.setState(GameState.LOBBY_STATE);
         }else {
           this.idText.setText("");
