@@ -202,7 +202,7 @@ class LobbyState extends GameState {
         let roomID=message.body.room;
         let userNum=message.body["memberCnt"];
 
-        if (roomList[roomID]) {
+        if (this.roomList[roomID]) {
           this.roomList[roomID]["memberCnt"]=userNum;
           this.reloadFunc(this.roomListPanel);
         }

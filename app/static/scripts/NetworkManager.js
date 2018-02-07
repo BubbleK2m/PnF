@@ -6,6 +6,7 @@ class NetworkManager {
 
     var self=this;
     this.buffer=[];
+
     //웹 소켓이 연결되었을 때 호출되는 이벤트
     this.socket.onopen = function(message) {
       console.log("connect!");
@@ -21,8 +22,21 @@ class NetworkManager {
     //웹 소켓에서 메시지가 날라왔을 때 호출되는 이벤트
     this.socket.onmessage = function(message) {
       var data = JSON.parse(message.data);
+      
+      if (data.head === "ping.pong.response") {
+        return;
+      }
+
       self.buffer.push(data);
     };
+
+    setInterval(() => {
+      let data = {
+        head: "ping.pong.request"
+      };
+
+      this.socket.send(JSON.stringify(data));
+    }, 1000)
   }
 
   /**
