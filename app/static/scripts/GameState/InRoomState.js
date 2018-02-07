@@ -142,7 +142,7 @@ class InRoomState extends GameState {
 
       let userID = userIDs[i];
 
-      if(userID==this.userID)
+      if(userID===this.userID)
         continue;
 
       else ++num;
