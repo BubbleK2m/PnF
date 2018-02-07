@@ -134,13 +134,13 @@ class InRoomState extends GameState {
 
     var num=0;
 
-    let userIDs = Object.keys(this.playerList)
+    let userIDSet = Object.keys(this.playerList)
 
-    for(let i=0;i<userIDs;i++){
+    for(let i=0;i<userIDSet.length;i++){
       let x=num%2;
       let y=Math.floor(num/2);
 
-      let userID = userIDs[i];
+      let userID = userIDSet[i];
 
       if(userID===this.userID)
         continue;
@@ -242,8 +242,9 @@ class InRoomState extends GameState {
 
         this.playerList[userID] = {
           isMaster: false,
+          isReady: false,
           currentCharacter: 0,
-        }
+        };
 
         this.reloadFunc(this.roomPanel);
       }break;
