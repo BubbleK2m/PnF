@@ -181,13 +181,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 				cli.Output <- CreateRoomResponse(true)
 
-				inf := make(map[string]interface{})
-
-				inf["id"] = rom.Data["id"].(string)
-				inf["name"] = rom.Data["name"].(string)
-				inf["member_cnt"] = len(rom.Clients)
-
-				BroadCast(CreateRoomReport(inf), func(mem *Client) bool {
+				BroadCast(CreateRoomReport(rom.Data["id"].(string), rom.Data["name"].(string), len(rom.Clients)), func(mem *Client) bool {
 					return mem.Data["room"] == nil
 				})
 			}

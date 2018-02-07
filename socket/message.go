@@ -41,10 +41,14 @@ func CreateRoomResponse(res bool) Message {
 	}
 }
 
-func CreateRoomReport(rom map[string](interface{})) Message {
+func CreateRoomReport(rid, nme string, cnt int) Message {
 	return Message{
 		Head: "room.create.report",
-		Body: rom
+		Body: map[string](interface{}){
+			"id":         rid,
+			"name":       nme,
+			"member_cnt": cnt,
+		},
 	}
 }
 
