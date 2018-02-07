@@ -43,10 +43,8 @@ func CreateRoomResponse(res bool) Message {
 
 func CreateRoomReport(rom map[string](interface{})) Message {
 	return Message{
-		Head: "room.create.response",
-		Body: map[string](interface{}){
-			"room": rom,
-		},
+		Head: "room.create.report",
+		Body: rom
 	}
 }
 
