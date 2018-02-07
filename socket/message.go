@@ -45,9 +45,9 @@ func CreateRoomReport(rid, nme string, cnt int) Message {
 	return Message{
 		Head: "room.create.report",
 		Body: map[string](interface{}){
-			"id":         rid,
-			"name":       nme,
-			"member_cnt": cnt,
+			"id":        rid,
+			"name":      nme,
+			"memberCnt": cnt,
 		},
 	}
 }
@@ -75,8 +75,8 @@ func UpdateRoomReport(rid string, cnt int) Message {
 	return Message{
 		Head: "room.update.report",
 		Body: map[string](interface{}){
-			"room":       rid,
-			"member_cnt": cnt,
+			"room":      rid,
+			"memberCnt": cnt,
 		},
 	}
 }
