@@ -23,10 +23,6 @@ func NewRoom(nme string) *Room {
 }
 
 func (rom *Room) Join(cli *Client, mas bool) {
-	if cli.Data["room"].(string) == Lobby.Data["id"].(string) {
-		Lobby.Quit(cli)
-	}
-
 	id := cli.Data["id"].(string)
 	rom.Clients[id] = cli
 
