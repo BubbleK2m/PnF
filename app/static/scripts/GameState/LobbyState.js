@@ -4,7 +4,7 @@ class LobbyState extends GameState {
   constructor(){
     super();
     this.currentPage=0;
-    this.roomList={};
+    this.roomList=new Object();
     this.maxPage=Math.floor((Object.keys(this.roomList).length-1)/8);
   }
 
@@ -149,7 +149,7 @@ class LobbyState extends GameState {
     uiManager.clear();
 
     this.currentPage=0;
-    this.roomList={};
+    this.roomList=new Object();;
     this.maxPage=0;
   }
 
@@ -169,9 +169,12 @@ class LobbyState extends GameState {
   messageProcess(message) {
     switch (message.head) {
       case "room.list.response":{
-        this.roomList=message.rooms;
-        this.reloadFunc(this.roomListPanel);
-        console.log(this.roomList);
+        if (messsage.body.result) {
+          this.roomList=message.body.rooms;
+          this.reloadFunc(this.roomListPanel);
+          
+          console.log(this.roomList);
+        }
       }break;
 
       case "room.create.report":{
