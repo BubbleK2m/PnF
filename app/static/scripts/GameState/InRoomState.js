@@ -238,7 +238,7 @@ class InRoomState extends GameState {
   messageProcess(message) {
     switch (message.head) {
       case "room.join.report":{
-        let userID = message.body.id
+        let userID = message.body.member
 
         this.playerList[userID] = {
           isMaster: false,
