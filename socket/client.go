@@ -212,16 +212,17 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 				mems := make(map[string](interface{}))
 
+				rom.Join(cli, false)
+
 				for id, cli := range rom.Clients {
 					inf := make(map[string](interface{}))
 
 					inf["isMaster"] = (id == rom.Data["master"].(string))
+					inf["isReady"] = cli.Data["ready"].(bool)
 					inf["currentCharacter"] = cli.Data["character"].(int)
 
 					mems[id] = inf
 				}
-
-				rom.Join(cli, false)
 
 				rom.MultiCast(JoinMemberReport(cli.Data["id"].(string)), func(mem *Client) bool {
 					return cli.Data["id"].(string) != mem.Data["id"].(string)
@@ -324,6 +325,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 		case "game.ready.request":
 			{
 				rom := Rooms[cli.Data["room"].(string)]
+
+				cli.Data["ready"] = inp.Body["ready"].(bool)
 
 				rom.MultiCast(ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)), func(mem *Client) bool {
 					return cli.Data["id"].(string) != mem.Data["id"].(string)
