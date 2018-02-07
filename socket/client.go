@@ -112,10 +112,6 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 	for inp := range cli.Input {
 		switch inp.Head {
-		case "ping.pong.request":
-			{
-				cli.Output <- PingPongResponse(true)
-			}
 		case "auth.login.request":
 			{
 				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)

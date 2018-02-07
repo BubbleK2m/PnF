@@ -5,15 +5,6 @@ type Message struct {
 	Body map[string](interface{}) `json:"body"`
 }
 
-func PingPongResponse(res bool) Message {
-	return Message{
-		Head: "ping.pong.rseponse",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
 func LoginResponse(res bool) Message {
 	return Message{
 		Head: "auth.login.response",
