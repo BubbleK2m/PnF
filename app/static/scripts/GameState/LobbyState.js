@@ -175,13 +175,14 @@ class LobbyState extends GameState {
       }break;
 
       case "room.create.report":{
-        let room=message.body.room;
-        let roomID=room.id;
+        let roomID=message.body.id;
+        let roomName=message.body.name;
+        let roomNumber=message.body["member_cnt"];
         
         this.roomList[roomID] = {
-          "name": room.name,
-          "member_cnt": room["member_cnt"],
-          "is_playing": room["is_plyaing"]
+          "name": roomName,
+          "member_cnt": roomNumber,
+          "is_playing": false,
         };
 
         this.reloadFunc(this.roomListPanel);
