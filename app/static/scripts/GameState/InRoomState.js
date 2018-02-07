@@ -237,7 +237,7 @@ class InRoomState extends GameState {
 
   messageProcess(message) {
     switch (message.Protocol) {
-      case "join.room.report":{
+      case "room.join.report":{
         this.playerList[userID] = {
           isMaster: false,
           currentCharacter: 0,
