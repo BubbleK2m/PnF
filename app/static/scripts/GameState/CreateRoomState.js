@@ -72,7 +72,7 @@ class CreateRoomState extends GameState {
 
   messageProcess(message) {
     switch (message.head) {
-      case "room.create.result":{
+      case "room.create.response":{
         if(message.body.result) {
           let userID = gsm.cookie.userID
           gsm.setState(GameState.IN_ROOM_STATE,{
