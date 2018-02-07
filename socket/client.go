@@ -193,8 +193,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 					inf := make(map[string](interface{}))
 
 					inf["name"] = rom.Data["name"].(string)
-					inf["is_playing"] = rom.Data["playing"].(bool)
-					inf["member_cnt"] = len(rom.Clients)
+					inf["isPlaying"] = rom.Data["playing"].(bool)
+					inf["memberCnt"] = len(rom.Clients)
 
 					roms[id] = inf
 				}
@@ -203,7 +203,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 			}
 		case "room.join.request":
 			{
-				rom := Rooms[inp.Body["id"].(string)]
+				rom := Rooms[inp.Body["room"].(string)]
 
 				if rom == nil {
 					cli.Output <- JoinRoomResponse(false, nil)

@@ -32,7 +32,7 @@ class LobbyState extends GameState {
         roomName.setText(self.roomList[keys[i+self.currentPage*8]].name);
 
         let roomNum=new UIButton(Sprite.VOID, 0, height/1.5, width, height/4, null);
-        roomNum.setText(self.roomList[keys[i+self.currentPage*8]]["member_cnt"] + " players");
+        roomNum.setText(self.roomList[keys[i+self.currentPage*8]]["memberCnt"] + " players");
 
         let btn=new UIButton(Sprite.HALF_VOID, 0, 0, width, height, {
           entered: function(uiButton) {
@@ -52,13 +52,13 @@ class LobbyState extends GameState {
               let data = {
                 head: "room.join.request",
                 body: {
-                  "id": id
+                  "room": id
                 }
               };
 
               networkManager.send(data);
             }
-          }(keys[i+self.currentPage*8], self.roomList[keys[i+self.currentPage*8]].name, self.roomList[keys[i+self.currentPage*8]]["member_cnt"])),
+          }(keys[i+self.currentPage*8], self.roomList[keys[i+self.currentPage*8]].name, self.roomList[keys[i+self.currentPage*8]]["memberCnt"])),
 
           released: function(uiButton) {
             uiButton.label.setColor(0,0,0,0.1);
@@ -180,12 +180,12 @@ class LobbyState extends GameState {
       case "room.create.report":{
         let roomID=message.body.id;
         let roomName=message.body.name;
-        let roomNumber=message.body["member_cnt"];
+        let roomNumber=message.body.memberCnt;
         
         this.roomList[roomID] = {
-          "name": roomName,
-          "member_cnt": roomNumber,
-          "is_playing": false,
+          name: roomName,
+          memberCnt: roomNumber,
+          isPlaying: false,
         };
 
         this.reloadFunc(this.roomListPanel);
@@ -200,10 +200,10 @@ class LobbyState extends GameState {
 
       case "room.update.report":{
         let roomID=message.body.room;
-        let userNum=message.body["member_cnt"];
+        let userNum=message.body["memberCnt"];
 
         if (roomList[roomID]) {
-          this.roomList[roomID]["member_cnt"]=userNum;
+          this.roomList[roomID]["memberCnt"]=userNum;
           this.reloadFunc(this.roomListPanel);
         }
       }break;
