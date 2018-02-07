@@ -131,10 +131,10 @@ class RegisterState extends GameState {
   }
 
   messageProcess(message) {
-    switch (message.Protocol) {
+    switch (message.head) {
 
-      case "RegisterResult":{
-        if(message.Value)
+      case "auth.register.response":{
+        if(message.body.result)
           gsm.setState(GameState.LOGIN_STATE);
         else {
           this.idText.setText("");

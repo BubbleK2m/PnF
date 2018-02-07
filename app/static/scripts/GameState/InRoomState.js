@@ -201,7 +201,7 @@ class InRoomState extends GameState {
 
   init() {
     console.log(this.receivedData);
-    this.userID=gsm.cookie.UserID;
+    this.userID=gsm.cookie.id;
 
     this.playerList=this.receivedData.members;
 
