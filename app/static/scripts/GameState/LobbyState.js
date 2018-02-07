@@ -211,7 +211,7 @@ class LobbyState extends GameState {
       case "room.join.response":{
         if(message.body.result){
           gsm.setState(GameState.IN_ROOM_STATE,{
-            Room:message.Room
+            members: message.body.members
           });
         }else{
           console.log("방의 인원수가 너무 많습니다.");

@@ -215,8 +215,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				for id, cli := range rom.Clients {
 					inf := make(map[string](interface{}))
 
-					inf["is_master"] = (id == rom.Data["master"].(string))
-					inf["current_character"] = cli.Data["character"].(int)
+					inf["isMaster"] = (id == rom.Data["master"].(string))
+					inf["currentCharacter"] = cli.Data["character"].(int)
 
 					mems[id] = inf
 				}
