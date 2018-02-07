@@ -23,8 +23,7 @@ func NewRoom(nme string) *Room {
 }
 
 func (rom *Room) Join(cli *Client, mas bool) {
-	id := cli.Data["id"].(string)
-	rom.Clients[id] = cli
+	rom.Clients[cli.Data["id"].(string)] = cli
 
 	if mas {
 		rom.Data["master"] = cli.Data["id"].(string)
@@ -56,7 +55,7 @@ func (rom *Room) MultiCast(msg Message, flt func(*Client) bool) {
 }
 
 func BroadCast(msg Message, flt func(*Client) bool) {
-	for id, cli := range Clients {
+	for _, cli := range Clients {
 		if flt(cli) {
 			cli.Output <- msg
 		}
