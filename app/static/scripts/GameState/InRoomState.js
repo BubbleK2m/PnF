@@ -283,7 +283,7 @@ class InRoomState extends GameState {
       }break;
 
       case "game.ready.response":{
-        playerList[this.userID].isReady = isReady;
+        this.playerList[this.userID].isReady = isReady;
       }break;
 
       case "game.ready.report":{
