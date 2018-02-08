@@ -284,7 +284,6 @@ class InRoomState extends GameState {
 
       case "game.ready.response":{
         playerList[this.userID].isReady = isReady;
-        this.reloadFunc(this.roomPanel);
       }break;
 
       case "game.ready.report":{
