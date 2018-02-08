@@ -80,7 +80,6 @@ class InRoomState extends GameState {
           "head": "room.quit.request"
         };
         networkManager.send(data);
-        gsm.setState(GameState.LOBBY_STATE);
       }
     });
 
