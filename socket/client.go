@@ -48,26 +48,32 @@ func (cli *Client) Close() {
 		id := cli.Data["id"].(string)
 		rom := Rooms[cli.Data["room"].(string)]
 
-		rom.Quit(cli)
-
-		if id == rom.Data["master"].(string) {
-			rom.ForEach(func(cli *Client) {
-				if id != cli.Data["id"].(string) {
-					cli.Output <- KickMemberReport(cli.Data["id"].(string))
-					rom.Quit(cli)
+		if rom != nil {
+			if id == rom.Data["master"].(string) {
+				for mid, mem := range rom.Clients {
+					if id != mid {
+						mem.Output <- KickMemberReport(mid)
+						rom.Quit(mem)
+					}
 				}
-			})
-
-			delete(Rooms, rom.Data["id"].(string))
-		} else {
-			rom.MultiCast(QuitRoomReport(id), func(cli *Client) bool {
-				return id != cli.Data["id"].(string)
-			})
+	
+				delete(Rooms, rom.Data["id"].(string))
+	
+				BroadCast(RemoveRoomReport(rom.Data["id"].(string)), func(mem *Client) bool {
+					return mem.Data["room"] == nil
+				})
+			} else {
+				rom.MultiCast(QuitRoomReport(id), func(mem *Client) bool {
+					return cli.Data["id"].(string) != mem.Data["id"].(string)
+				})
+	
+				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
+					return mem.Data["room"] == nil
+				})
+			}
+	
+			rom.Quit(cli)
 		}
-
-		BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
-			return mem.Data["room"] == nil
-		})
 	}
 
 	delete(Clients, cli.Data["id"].(string))
