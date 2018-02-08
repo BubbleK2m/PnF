@@ -31,10 +31,20 @@ class InRoomState extends GameState {
 
       released: function(uiButton) {
         uiButton.label.setColor(0,0,0,0.1);
-        var data={
-          head: "game.start.request",
-        };
-        networkManager.send(data);
+        
+        if (this.isMaster) {
+          for (let userID in this.playerList) {
+            if (!this.playerList(userID).isReady) {
+              return;
+            }
+          }
+
+          var data={
+            head: "game.start.request",
+          };
+  
+          networkManager.send(data);
+        }
       }
     });
     
@@ -203,6 +213,7 @@ class InRoomState extends GameState {
     this.userID=gsm.cookie.id;
 
     this.playerList=this.receivedData.members;
+    this.isMaster=this.playerList[this.userID].isMaster;
 
     var self=this;
 

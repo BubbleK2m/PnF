@@ -56,9 +56,9 @@ func (cli *Client) Close() {
 						rom.Quit(mem)
 					}
 				}
-	
+
 				delete(Rooms, rom.Data["id"].(string))
-	
+
 				BroadCast(RemoveRoomReport(rom.Data["id"].(string)), func(mem *Client) bool {
 					return mem.Data["room"] == nil
 				})
@@ -66,12 +66,12 @@ func (cli *Client) Close() {
 				rom.MultiCast(QuitRoomReport(id), func(mem *Client) bool {
 					return cli.Data["id"].(string) != mem.Data["id"].(string)
 				})
-	
+
 				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
 					return mem.Data["room"] == nil
 				})
 			}
-	
+
 			rom.Quit(cli)
 		}
 	}
