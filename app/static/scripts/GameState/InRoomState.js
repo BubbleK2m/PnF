@@ -261,12 +261,12 @@ class InRoomState extends GameState {
       }break;
 
       case "room.kick.report":{
-        let userID = message.body.member;
+        let memberID = message.body.member;
 
-        if (this.userID === userID) {
+        if (this.userID === memberID) {
           gsm.setState(GameState.LOBBY_STATE);
         } else {
-          delete this.playerList[userID];
+          delete this.playerList[memberID];
           this.reloadFunc(this.roomPanel);
         }
       }break;
