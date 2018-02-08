@@ -98,10 +98,13 @@ class RegisterState extends GameState {
           self.R_passwordText.setText("");
           return;
         }
-        var data={};
-        data.Protocol="Register";
-        data.Id=self.idText.textLabel.text;
-        data.Password=self.passwordText.textLabel.text;
+        var data={
+          head: "auth.register.request",
+          body: {
+            id: self.idText.textLabel.text,
+            pw: self.passwordText.textLabel.text
+          }
+        };
         networkManager.send(data);
       }
     });
