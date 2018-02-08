@@ -35,6 +35,7 @@ class InRoomState extends GameState {
         if (this.isMaster) {
           for (let userID in this.playerList) {
             if (!this.playerList[userID].isReady) {
+              console.log("All Player Must Ready Game");
               return;
             }
           }
