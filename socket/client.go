@@ -263,6 +263,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 					return cli.Data["id"].(string) != mem.Data["id"].(string)
 				})
 
+				cli.Output <- KickMemberResponse(true)
+
 				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
 					return mem.Data["room"] == nil
 				})
