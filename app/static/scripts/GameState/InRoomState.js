@@ -32,9 +32,9 @@ class InRoomState extends GameState {
       released: function(uiButton) {
         uiButton.label.setColor(0,0,0,0.1);
         
-        if (this.isMaster) {
+        if (self.isMaster) {
           for (let userID in this.playerList) {
-            if (!this.playerList[userID].isReady) {
+            if (!self.playerList[userID].isReady) {
               console.log("All Player Must Ready Game");
               return;
             }
