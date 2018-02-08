@@ -249,6 +249,12 @@ class InRoomState extends GameState {
         this.reloadFunc(this.roomPanel);
       }break;
 
+      case "room.quit.response":{
+        if (message.body.result) {
+          gsm.setState(GameState.LOBBY_STATE);
+        }
+      }
+
       case "room.quit.report":{
         delete this.playerList[message.body.member]; 
         this.reloadFunc(this.roomPanel);
@@ -257,7 +263,7 @@ class InRoomState extends GameState {
       case "room.kick.report":{
         let userID = message.body.member;
 
-        if (gsm.cookie.userID === userID) {
+        if (this.userID === userID) {
           gsm.setState(GameState.LOBBY_STATE);
         } else {
           delete this.playerList[userID];
