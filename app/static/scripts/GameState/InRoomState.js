@@ -282,6 +282,11 @@ class InRoomState extends GameState {
         }
       }break;
 
+      case "game.ready.response":{
+        playerList[this.userID].isReady = isReady;
+        this.reloadFunc(this.roomPanel);
+      }break;
+
       case "game.ready.report":{
         let userID = message.body.member
         let isReady = message.body.ready
