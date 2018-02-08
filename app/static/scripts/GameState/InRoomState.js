@@ -45,6 +45,8 @@ class InRoomState extends GameState {
           };
   
           networkManager.send(data);
+        } else {
+          console.log("Master Is Can Start Game");
         }
       }
     });
