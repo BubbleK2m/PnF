@@ -12,7 +12,7 @@
         </form>
         <script src="/static/scripts/library/reconnecting-websocket-min.js"></script>
         <script>
-            const socket = new WebSocket(`wss://pnf.herokuapp.com/socket`);
+            const socket = new WebSocket(`wss://${location.host}/socket`);
 
             socket.onmessage = (event) => {
                 console.log(event.data);
