@@ -32,7 +32,7 @@ func Awake() {
 		time.Sleep(time.Minute * 1)
 
 		for {
-			http.Get("https://localhost/")
+			http.Get("https://pnf.herokuapp.com/")
 			time.Sleep(time.Minute * 3)
 		}
 	}()

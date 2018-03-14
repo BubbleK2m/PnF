@@ -17,14 +17,14 @@ type Client struct {
 	RoomID  string `json:"room_id"`
 	CharIDX int    `json:"char_idx"`
 
-	Input   chan Message `json:"-"`
+	Input  chan Message `json:"-"`
 	Output chan Message `json:"-"`
 }
 
 func NewClient(con *websocket.Conn) *Client {
 	return &Client{
 		Conn:   con,
-		Input:   make(chan Message),
+		Input:  make(chan Message),
 		Output: make(chan Message),
 	}
 }
