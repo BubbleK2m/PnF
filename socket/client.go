@@ -6,23 +6,25 @@ import (
 	"sync"
 
 	"github.com/DSMdongly/pnf/app"
-	"github.com/DSMdongly/pnf/app/model"
 
 	"github.com/gorilla/websocket"
 )
 
 type Client struct {
-	Conn   *websocket.Conn
-	Data   map[string](interface{})
-	Input  chan Message
-	Output chan Message
+	Conn *websocket.Conn `json:"-"`
+
+	Name    string `json:"name"`
+	RoomID  string `json:"room_id"`
+	CharIDX int    `json:"char_idx"`
+
+	inut   chan Message `json:"-"`
+	Output chan Message `json:"-"`
 }
 
 func NewClient(con *websocket.Conn) *Client {
 	return &Client{
 		Conn:   con,
-		Data:   make(map[string](interface{})),
-		Input:  make(chan Message),
+		inut:   make(chan Message),
 		Output: make(chan Message),
 	}
 }
@@ -40,48 +42,26 @@ func (cli *Client) Handle() {
 func (cli *Client) Close() {
 	cli.Conn.Close()
 
-	if cli.Data["id"] == nil {
+	if cli.Name == "" {
 		return
 	}
 
-	if cli.Data["room"] != nil {
-		id := cli.Data["id"].(string)
-		rom := Rooms[cli.Data["room"].(string)]
+	if cli.RoomID != "" {
+		nme := cli.Name
+		rom := Rooms[cli.RoomID]
 
 		if rom != nil {
-			if id == rom.Data["master"].(string) {
-				for mid, mem := range rom.Clients {
-					if id != mid {
-						mem.Output <- KickMemberReport(mid)
-						rom.Quit(mem)
-					}
-				}
-
-				delete(Rooms, rom.Data["id"].(string))
-
-				BroadCast(RemoveRoomReport(rom.Data["id"].(string)), func(mem *Client) bool {
-					return mem.Data["room"] == nil
-				})
-			} else {
-				rom.MultiCast(QuitRoomReport(id), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
-					return mem.Data["room"] == nil
-				})
-			}
-
+			rom.BroadCast(QuitGameReport(cli), cli)
 			rom.Quit(cli)
 		}
 	}
 
-	delete(Clients, cli.Data["id"].(string))
+	delete(Clients, cli.Name)
 }
 
 func (cli *Client) Read(wg *sync.WaitGroup) {
 	defer func() {
-		close(cli.Input)
+		close(cli.inut)
 		wg.Done()
 	}()
 
@@ -104,7 +84,7 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 
 		app.Echo.Logger.Infof("received message %v", msg)
 
-		cli.Input <- msg
+		cli.inut <- msg
 	}
 }
 
@@ -116,286 +96,77 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 	wg.Add(1)
 
-	for inp := range cli.Input {
-		switch inp.Head {
-		case "auth.login.request":
+	for in := range cli.inut {
+		switch in.Head {
+		case "join_game_request":
 			{
-				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
+				nme := in.Body["name"].(string)
+				mem := Clients[nme]
 
-				usr := model.User{}
-				err := model.DB.Where("id = ? AND pw = ?", id, pw).First(&usr).Error
-
-				if err != nil {
-					app.Echo.Logger.Error(err)
-				}
-
-				if err != nil || Clients[id] != nil {
-					cli.Output <- LoginResponse(false)
+				if mem != nil {
+					cli.Output <- JoinGameResponse(false, nil)
 					break
 				}
 
-				cli.Data["id"] = id
-				Clients[id] = cli
+				cli.Name = nme
 
-				cli.Output <- LoginResponse(true)
+				rom := MatchingRoom()
+				rom.Join(cli)
+				rom.BroadCast(JoinGameReport(cli), cli)
+
+				cli.Output <- JoinGameResponse(true, rom.List())
 			}
-		case "auth.register.request":
+		case "quit_game_request":
 			{
-				id, pw := inp.Body["id"].(string), inp.Body["pw"].(string)
-
-				usr := model.User{id, pw}
-				err := model.DB.Create(&usr).Error
-
-				if err != nil {
-					app.Echo.Logger.Error(err)
-					cli.Output <- RegisterResponse(false)
-
-					break
-				}
-
-				cli.Output <- RegisterResponse(true)
-			}
-		case "auth.check.request":
-			{
-				id := inp.Body["id"].(string)
-
-				db := model.DB
-				usr := model.User{}
-
-				err := db.Where("id = ?", id).First(&usr).Error
-
-				if err != nil {
-					app.Echo.Logger.Error(err)
-					cli.Output <- CheckResponse(false)
-
-					break
-				}
-
-				cli.Output <- CheckResponse(true)
-			}
-		case "room.create.request":
-			{
-				nme := inp.Body["name"].(string)
-
-				rom := NewRoom(nme)
-				rom.Join(cli, true)
-
-				rom.Data["master"] = cli.Data["id"].(string)
-				rom.Data["playing"] = false
-
-				Rooms[rom.Data["id"].(string)] = rom
-
-				cli.Output <- CreateRoomResponse(true)
-
-				BroadCast(CreateRoomReport(rom.Data["id"].(string), rom.Data["name"].(string), len(rom.Clients)), func(mem *Client) bool {
-					return mem.Data["room"] == nil
-				})
-			}
-		case "room.list.request":
-			{
-				roms := make(map[string](interface{}))
-
-				for id, rom := range Rooms {
-					inf := make(map[string](interface{}))
-
-					inf["name"] = rom.Data["name"].(string)
-					inf["isPlaying"] = rom.Data["playing"].(bool)
-					inf["memberCnt"] = len(rom.Clients)
-
-					roms[id] = inf
-				}
-
-				cli.Output <- RoomListResponse(true, roms)
-			}
-		case "room.join.request":
-			{
-				rom := Rooms[inp.Body["room"].(string)]
+				rom := Rooms[cli.RoomID]
 
 				if rom == nil {
-					cli.Output <- JoinRoomResponse(false, nil)
+					cli.Output <- QuitGameResponse(false)
 					break
-				}
-
-				mems := make(map[string](interface{}))
-
-				rom.Join(cli, false)
-
-				for id, cli := range rom.Clients {
-					inf := make(map[string](interface{}))
-
-					inf["isMaster"] = (id == rom.Data["master"].(string))
-					inf["isReady"] = cli.Data["ready"].(bool)
-					inf["currentCharacter"] = cli.Data["character"].(int)
-
-					mems[id] = inf
-				}
-
-				rom.MultiCast(JoinMemberReport(cli.Data["id"].(string)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
-					return mem.Data["room"] == nil
-				})
-
-				cli.Output <- JoinRoomResponse(true, mems)
-			}
-		case "room.kick.request":
-			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				if rom == nil || cli.Data["id"].(string) == rom.Data["master"].(string) {
-					cli.Output <- KickMemberResponse(false)
-					break
-				}
-
-				mid := inp.Body["member"].(string)
-				mem := rom.Clients[mid]
-
-				if mem == nil {
-					cli.Output <- KickMemberResponse(false)
-					break
-				}
-
-				rom.Quit(mem)
-
-				rom.MultiCast(KickMemberReport(mid), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				cli.Output <- KickMemberResponse(true)
-
-				BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
-					return mem.Data["room"] == nil
-				})
-			}
-		case "room.quit.request":
-			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				if rom == nil {
-					cli.Output <- QuitRoomResponse(false)
-					break
-				}
-
-				id := cli.Data["id"].(string)
-
-				if id == rom.Data["master"].(string) {
-					for mid, mem := range rom.Clients {
-						if id != mid {
-							mem.Output <- KickMemberReport(mid)
-							rom.Quit(mem)
-						}
-					}
-
-					delete(Rooms, rom.Data["id"].(string))
-
-					BroadCast(RemoveRoomReport(rom.Data["id"].(string)), func(mem *Client) bool {
-						return mem.Data["room"] == nil
-					})
-				} else {
-					rom.MultiCast(QuitRoomReport(id), func(mem *Client) bool {
-						return cli.Data["id"].(string) != mem.Data["id"].(string)
-					})
-
-					BroadCast(UpdateRoomReport(rom.Data["id"].(string), len(rom.Clients)), func(mem *Client) bool {
-						return mem.Data["room"] == nil
-					})
 				}
 
 				rom.Quit(cli)
+				rom.BroadCast(QuitGameReport(cli), cli)
 
-				cli.Output <- QuitRoomResponse(true)
+				delete(Clients, cli.Name)
+				cli.Output <- QuitGameResponse(true)
 			}
-		case "room.chat.request":
+		case "move_character_request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
+				rom := Rooms[cli.RoomID]
+				dir := in.Body["direction"].(int)
 
-				rom.MultiCast(ChatReport(cli.Data["id"].(string), inp.Body["message"].(string)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				cli.Output <- ChatResponse(true)
-			}
-		case "char.switch.request":
-			{
-				idx := inp.Body["index"].(int)
-				cli.Data["character"] = idx
-
-				rom := Rooms[cli.Data["room"].(string)]
-
-				rom.MultiCast(SwitchCharacterReport(cli.Data["id"].(string), idx), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				cli.Output <- SwitchCharacterResponse(true)
-			}
-		case "game.ready.request":
-			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				cli.Data["ready"] = inp.Body["ready"].(bool)
-
-				rom.MultiCast(ReadyGameReport(cli.Data["id"].(string), inp.Body["ready"].(bool)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				cli.Output <- ReadyGameResponse(true)
-			}
-		case "game.start.request":
-			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				if cli.Data["id"].(string) != rom.Data["master"].(string) {
-					cli.Output <- StartGameResponse(false)
-					break
-				}
-
-				rom.Data["playing"] = true
-
-				rom.MultiCast(StartGameReport(), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
-				cli.Output <- StartGameResponse(true)
-			}
-		case "char.move.request":
-			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				rom.MultiCast(MoveCharacterReport(cli.Data["id"].(string), inp.Body["direction"].(int)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
-
+				rom.BroadCast(MoveCharacterReport(cli, dir), cli)
 				cli.Output <- MoveCharacterResponse(true)
 			}
-		case "char.jump.request":
+		case "switch_character_request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
+				idx := in.Body["index"].(int)
+				cli.CharIDX = idx
 
-				rom.MultiCast(JumpCharacterReport(cli.Data["id"].(string)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
+				rom := Rooms[cli.RoomID]
+
+				rom.BroadCast(SwitchCharacterReport(cli, idx), cli)
+				cli.Output <- SwitchCharacterResponse(true)
+			}
+		case "jump_character_reqeuest":
+			{
+				rom := Rooms[cli.RoomID]
+				rom.BroadCast(JumpCharacterReport(cli), cli)
 
 				cli.Output <- JumpCharacterResponse(true)
 			}
-		case "char.sync.request":
+		case "sync_character_request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				rom.MultiCast(SyncCharacterReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
+				rom := Rooms[cli.RoomID]
+				rom.BroadCast(SyncCharacterReport(cli, in.Body["x"].(int), in.Body["y"].(int)), cli)
 
 				cli.Output <- SyncCharacterResponse(true)
 			}
-		case "char.shoot.request":
+		case "shoot_bullet_request":
 			{
-				rom := Rooms[cli.Data["room"].(string)]
-
-				rom.MultiCast(ShootBulletReport(cli.Data["id"].(string), inp.Body["x"].(int), inp.Body["y"].(int)), func(mem *Client) bool {
-					return cli.Data["id"].(string) != mem.Data["id"].(string)
-				})
+				rom := Rooms[cli.RoomID]
+				rom.BroadCast(ShootBulletReport(cli, in.Body["x"].(int), in.Body["y"].(int)), cli)
 
 				cli.Output <- ShootBulletResponse(true)
 			}
@@ -411,8 +182,8 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 
 	wg.Add(1)
 
-	for oup := range cli.Output {
-		byts, err := json.Marshal(oup)
+	for out := range cli.Output {
+		byts, err := json.Marshal(out)
 
 		if err != nil {
 			if err == io.EOF {
@@ -434,6 +205,6 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 			break
 		}
 
-		app.Echo.Logger.Infof("sent message %v", oup)
+		app.Echo.Logger.Infof("sent message %v", out)
 	}
 }

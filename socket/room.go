@@ -6,58 +6,44 @@ import (
 )
 
 type Room struct {
-	Data    map[string](interface{})
-	Clients map[string]*Client
+	ID      string    `json:"id"`
+	Clients []*Client `json:"clients"`
 }
 
-func NewRoom(nme string) *Room {
+func NewRoom() *Room {
 	rom := &Room{
-		Data:    make(map[string](interface{})),
-		Clients: make(map[string]*Client),
+		Clients: make([]*Client, 0),
 	}
 
-	rom.Data["id"] = strconv.FormatFloat(rand.Float64(), 'f', -1, 64)
-	rom.Data["name"] = nme
-
+	rom.ID = strconv.FormatFloat(rand.Float64(), 'f', -1, 64)
 	return rom
 }
 
-func (rom *Room) Join(cli *Client, mas bool) {
-	rom.Clients[cli.Data["id"].(string)] = cli
+func (rom *Room) Join(cli *Client) {
+	rom.Clients = append(rom.Clients, cli)
 
-	if mas {
-		rom.Data["master"] = cli.Data["id"].(string)
-	}
-
-	cli.Data["room"] = rom.Data["id"].(string)
-	cli.Data["character"] = 0
-	cli.Data["ready"] = false
+	cli.RoomID = rom.ID
+	cli.CharIDX = 0
 }
 
 func (rom *Room) Quit(cli *Client) {
-	id := cli.Data["id"].(string)
-	delete(rom.Clients, id)
-
-	cli.Data["room"] = nil
+	delete(rom.Clients, cli.Name)
+	cli.RoomID = nil
 }
 
-func (rom *Room) ForEach(act func(*Client)) {
-	for _, cli := range rom.Clients {
-		act(cli)
-	}
-}
+func (rom *Room) List() []*Client {
+	clis = make([]*Client, 0)
 
-func (rom *Room) MultiCast(msg Message, flt func(*Client) bool) {
-	rom.ForEach(func(cli *Client) {
-		if flt(cli) {
-			cli.Output <- msg
-		}
-	})
-}
-
-func BroadCast(msg Message, flt func(*Client) bool) {
 	for _, cli := range Clients {
-		if flt(cli) {
+		clis = append(clis, cli)
+	}
+
+	return clis
+}
+
+func (rom *Room) BroadCast(msg Message, sdr *Client) {
+	for _, cli := range Clients {
+		if cli.Name != sdr.Name {
 			cli.Output <- msg
 		}
 	}

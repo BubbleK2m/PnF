@@ -5,223 +5,76 @@ type Message struct {
 	Body map[string](interface{}) `json:"body"`
 }
 
-func LoginResponse(res bool) Message {
+func JoinGameResponse(res bool, clis []*Client) Message {
 	return Message{
-		Head: "auth.login.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func RegisterResponse(res bool) Message {
-	return Message{
-		Head: "auth.register.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func CheckResponse(res bool) Message {
-	return Message{
-		Head: "auth.check.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func CreateRoomResponse(res bool) Message {
-	return Message{
-		Head: "room.create.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func CreateRoomReport(rid, nme string, cnt int) Message {
-	return Message{
-		Head: "room.create.report",
-		Body: map[string](interface{}){
-			"id":        rid,
-			"name":      nme,
-			"memberCnt": cnt,
-		},
-	}
-}
-
-func RemoveRoomReport(rid string) Message {
-	return Message{
-		Head: "room.remove.report",
-		Body: map[string](interface{}){
-			"room": rid,
-		},
-	}
-}
-
-func RoomListResponse(res bool, roms map[string](interface{})) Message {
-	return Message{
-		Head: "room.list.response",
-		Body: map[string](interface{}){
-			"result": res,
-			"rooms":  roms,
-		},
-	}
-}
-
-func UpdateRoomReport(rid string, cnt int) Message {
-	return Message{
-		Head: "room.update.report",
-		Body: map[string](interface{}){
-			"room":      rid,
-			"memberCnt": cnt,
-		},
-	}
-}
-
-func JoinRoomResponse(res bool, mems map[string]interface{}) Message {
-	return Message{
-		Head: "room.join.response",
+		Head: "join_game_response",
 		Body: map[string](interface{}){
 			"result":  res,
-			"members": mems,
+			"clients": clis,
 		},
 	}
 }
 
-func JoinMemberReport(mid string) Message {
+func JoinGameReport(cli *Client) Message {
 	return Message{
-		Head: "room.join.report",
+		Head: "join_game_report",
 		Body: map[string](interface{}){
-			"member": mid,
+			"client": cli,
 		},
 	}
 }
 
-func KickMemberResponse(res bool) Message {
+func QuitGameResponse(res bool) Message {
 	return Message{
-		Head: "room.quit.response",
+		Head: "quit_game_response",
 		Body: map[string](interface{}){
-			"result": res,
+			"result": true,
 		},
 	}
 }
 
-func KickMemberReport(mid string) Message {
+func QuitGameReport(cli *Client) Message {
 	return Message{
-		Head: "room.kick.report",
+		Head: "quit_game_report",
 		Body: map[string](interface{}){
-			"member": mid,
-		},
-	}
-}
-
-func QuitRoomResponse(res bool) Message {
-	return Message{
-		Head: "room.quit.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func QuitRoomReport(mid string) Message {
-	return Message{
-		Head: "room.quit.report",
-		Body: map[string](interface{}){
-			"member": mid,
-		},
-	}
-}
-
-func ChatResponse(res bool) Message {
-	return Message{
-		Head: "room.chat.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func ChatReport(mid, msg string) Message {
-	return Message{
-		Head: "room.chat.report",
-		Body: map[string](interface{}){
-			"message": msg,
-			"sender":  mid,
+			"client": cli,
 		},
 	}
 }
 
 func SwitchCharacterResponse(res bool) Message {
 	return Message{
-		Head: "room.switch.response",
+		Head: "switch_character_response",
 		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
 }
 
-func SwitchCharacterReport(mid string, idx int) Message {
+func SwitchCharacterReport(cli *Client, idx int) Message {
 	return Message{
-		Head: "room.switch.report",
+		Head: "switch_character_report",
 		Body: map[string](interface{}){
+			"client": cli,
 			"index":  idx,
-			"member": mid,
 		},
-	}
-}
-
-func ReadyGameResponse(res bool) Message {
-	return Message{
-		Head: "game.ready.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func ReadyGameReport(mid string, rdy bool) Message {
-	return Message{
-		Head: "game.ready.report",
-		Body: map[string](interface{}){
-			"member": mid,
-			"ready":  rdy,
-		},
-	}
-}
-
-func StartGameResponse(res bool) Message {
-	return Message{
-		Head: "game.start.response",
-		Body: map[string](interface{}){
-			"result": res,
-		},
-	}
-}
-
-func StartGameReport() Message {
-	return Message{
-		Head: "game.start.report",
 	}
 }
 
 func MoveCharacterResponse(res bool) Message {
 	return Message{
-		Head: "char.move.response",
+		Head: "move_character_report",
 		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
 }
 
-func MoveCharacterReport(mid string, dir int) Message {
+func MoveCharacterReport(cli *Client, dir int) Message {
 	return Message{
-		Head: "char.move.report",
+		Head: "move_character_report",
 		Body: map[string](interface{}){
-			"member":    mid,
+			"client":    cli,
 			"direction": dir,
 		},
 	}
@@ -229,36 +82,36 @@ func MoveCharacterReport(mid string, dir int) Message {
 
 func JumpCharacterResponse(res bool) Message {
 	return Message{
-		Head: "char.jump.report",
+		Head: "jump_character_response",
 		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
 }
 
-func JumpCharacterReport(mid string) Message {
+func JumpCharacterReport(cli *Client) Message {
 	return Message{
-		Head: "char.jump.report",
+		Head: "jump_character_report",
 		Body: map[string](interface{}){
-			"member": mid,
+			"client": cli,
 		},
 	}
 }
 
 func SyncCharacterResponse(res bool) Message {
 	return Message{
-		Head: "char.sync.response",
+		Head: "sync_character_response",
 		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
 }
 
-func SyncCharacterReport(mid string, x, y int) Message {
+func SyncCharacterReport(cli *Client, x, y int) Message {
 	return Message{
-		Head: "char.sync.report",
+		Head: "sync_character_report",
 		Body: map[string](interface{}){
-			"member": mid,
+			"client": cli,
 			"x":      x,
 			"y":      y,
 		},
@@ -267,18 +120,18 @@ func SyncCharacterReport(mid string, x, y int) Message {
 
 func ShootBulletResponse(res bool) Message {
 	return Message{
-		Head: "char.shoot.response",
+		Head: "shoot_bullet_response",
 		Body: map[string](interface{}){
 			"result": res,
 		},
 	}
 }
 
-func ShootBulletReport(mid string, x, y int) Message {
+func ShootBulletReport(cli *Client, x, y int) Message {
 	return Message{
-		Head: "char.shoot.report",
+		Head: "shoot_bullet_report",
 		Body: map[string](interface{}){
-			"member": mid,
+			"client": cli,
 			"x":      x,
 			"y":      y,
 		},
