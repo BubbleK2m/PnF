@@ -17,14 +17,14 @@ type Client struct {
 	RoomID  string `json:"room_id"`
 	CharIDX int    `json:"char_idx"`
 
-	inut   chan Message `json:"-"`
+	Input   chan Message `json:"-"`
 	Output chan Message `json:"-"`
 }
 
 func NewClient(con *websocket.Conn) *Client {
 	return &Client{
 		Conn:   con,
-		inut:   make(chan Message),
+		Input:   make(chan Message),
 		Output: make(chan Message),
 	}
 }
@@ -60,7 +60,7 @@ func (cli *Client) Close() {
 
 func (cli *Client) Read(wg *sync.WaitGroup) {
 	defer func() {
-		close(cli.inut)
+		close(cli.Input)
 		wg.Done()
 	}()
 
@@ -83,7 +83,7 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 
 		app.Echo.Logger.Infof("received message %v", msg)
 
-		cli.inut <- msg
+		cli.Input <- msg
 	}
 }
 
@@ -95,7 +95,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 	wg.Add(1)
 
-	for in := range cli.inut {
+	for in := range cli.Input {
 		switch in.Head {
 		case "join_game_request":
 			{
