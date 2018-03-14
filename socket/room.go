@@ -32,7 +32,7 @@ func (rom *Room) Quit(cli *Client) {
 }
 
 func (rom *Room) List() []*Client {
-	clis = make([]*Client, 0)
+	clis := make([]*Client, 0)
 
 	for _, cli := range Clients {
 		clis = append(clis, cli)
