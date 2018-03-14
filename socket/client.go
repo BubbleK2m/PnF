@@ -47,7 +47,6 @@ func (cli *Client) Close() {
 	}
 
 	if cli.RoomID != "" {
-		nme := cli.Name
 		rom := Rooms[cli.RoomID]
 
 		if rom != nil {
