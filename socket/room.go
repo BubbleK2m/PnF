@@ -6,13 +6,13 @@ import (
 )
 
 type Room struct {
-	ID      string    `json:"id"`
-	Clients []*Client `json:"clients"`
+	ID      string             `json:"id"`
+	Clients map[string]*Client `json:"clients"`
 }
 
 func NewRoom() *Room {
 	rom := &Room{
-		Clients: make([]*Client, 0),
+		Clients: make(map[string]*Client, 0),
 	}
 
 	rom.ID = strconv.FormatFloat(rand.Float64(), 'f', -1, 64)
