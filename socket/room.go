@@ -20,7 +20,7 @@ func NewRoom() *Room {
 }
 
 func (rom *Room) Join(cli *Client) {
-	rom.Clients = append(rom.Clients, cli)
+	rom.Clients[cli.Name] = cli
 
 	cli.RoomID = rom.ID
 	cli.CharIDX = 0
@@ -28,7 +28,7 @@ func (rom *Room) Join(cli *Client) {
 
 func (rom *Room) Quit(cli *Client) {
 	delete(rom.Clients, cli.Name)
-	cli.RoomID = nil
+	cli.RoomID = ""
 }
 
 func (rom *Room) List() []*Client {
