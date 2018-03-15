@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"sync"
-
 	"github.com/DSMdongly/pnf/socket"
 	"github.com/labstack/echo"
 
@@ -12,16 +10,21 @@ import (
 func Socket() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		websocket.Handler(func(con *websocket.Conn) {
-			cli := socket.NewClient(con)
-			defer cli.Close()
+			defer con.Close()
 
-			var wg sync.WaitGroup
+			for {
+				msg := socket.Message{}
 
-			go cli.Read(&wg)
-			go cli.Process(&wg)
-			go cli.Write(&wg)
+				if err := websocket.JSON.Receive(con, &msg); err != nil {
+					ctx.Logger().Error(err)
+					break
+				}
 
-			wg.Wait()
+				if err := websocket.JSON.Send(con, msg); err != nil {
+					ctx.Logger().Error(err)
+					break
+				}
+			}
 		}).ServeHTTP(ctx.Response(), ctx.Request())
 
 		return nil
