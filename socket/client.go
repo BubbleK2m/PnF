@@ -105,6 +105,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				rom.Join(cli)
 				rom.BroadCast(JoinGameReport(cli), cli)
 
+				Clients[nme] = cli
 				cli.Output <- JoinGameResponse(true, rom.List())
 			}
 		case "quit_game_request":
