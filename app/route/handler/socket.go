@@ -17,7 +17,7 @@ func Socket() echo.HandlerFunc {
 				ctx.Logger().Error(err)
 			}
 
-			if err := websocket.Message.Send(con, &txt); err != nil {
+			if err := websocket.Message.Send(con, txt); err != nil {
 				ctx.Logger().Error(err)
 			}
 		}).ServeHTTP(ctx.Response(), ctx.Request())
