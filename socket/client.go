@@ -8,7 +8,7 @@ import (
 
 	"github.com/DSMdongly/pnf/app"
 
-	"github.com/golang/x/net/websocket"
+	"golang.org/x/net/websocket"
 )
 
 type Client struct {
