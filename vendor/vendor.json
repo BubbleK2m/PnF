@@ -80,12 +80,6 @@
 			"path": "golang.org/x/crypto/acme/autocert",
 			"revision": "21652f85b0fdddb6c2b6b77a5beca5c5a908174a",
 			"revisionTime": "2018-03-14T17:20:41Z"
-		},
-		{
-			"checksumSHA1": "7EZyXN0EmZLgGxZxK01IJua4c8o=",
-			"path": "golang.org/x/net/websocket",
-			"revision": "e0c57d8f86c17f0724497efcb3bc617e82834821",
-			"revisionTime": "2018-03-14T17:20:59Z"
 		}
 	],
 	"rootPath": "github.com/DSMdongly/pnf"

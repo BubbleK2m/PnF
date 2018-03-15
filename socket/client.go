@@ -6,7 +6,7 @@ import (
 
 	"github.com/DSMdongly/pnf/app"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Client struct {
@@ -68,7 +68,7 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 	for {
 		in := Message{}
 
-		if err := websocket.JSON.Receive(cli.Conn, &in); err != nil {
+		if err := cli.Conn.ReadJSON(&in); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
@@ -173,7 +173,7 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	for out := range cli.Output {
-		if err := websocket.JSON.Send(cli.Conn, &out); err != nil {
+		if err := cli.Conn.WriteJSON(out); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}

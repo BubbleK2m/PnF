@@ -3,29 +3,20 @@ package handler
 import (
 	"github.com/DSMdongly/pnf/socket"
 	"github.com/labstack/echo"
-
-	"golang.org/x/net/websocket"
 )
 
 func Socket() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		websocket.Handler(func(con *websocket.Conn) {
-			defer con.Close()
+		con, err := socket.Upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 
-			for {
-				msg := socket.Message{}
+		if err != nil {
+			return err
+		}
 
-				if err := websocket.JSON.Receive(con, &msg); err != nil {
-					ctx.Logger().Error(err)
-					break
-				}
+		cli := socket.NewClient(con)
 
-				if err := websocket.JSON.Send(con, msg); err != nil {
-					ctx.Logger().Error(err)
-					break
-				}
-			}
-		}).ServeHTTP(ctx.Response(), ctx.Request())
+		defer cli.Close()
+		cli.Handle()
 
 		return nil
 	}
