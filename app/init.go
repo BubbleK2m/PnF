@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/DSMdongly/pnf/config"
-	"github.com/DSMdongly/pnf/support"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -18,7 +17,6 @@ var (
 
 func Init() {
 	Echo = echo.New()
-	Echo.Validator = support.NewValidator()
 
 	Echo.Static("/static", "app/static")
 
