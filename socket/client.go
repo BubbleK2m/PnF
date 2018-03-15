@@ -29,7 +29,7 @@ func NewClient(con *websocket.Conn) *Client {
 }
 
 func (cli *Client) Handle() {
-	wg := sync.WaitGroup{}
+	var wg sync.WaitGroup
 
 	go cli.Read(&wg)
 	go cli.Process(&wg)
@@ -167,7 +167,6 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 
 func (cli *Client) Write(wg *sync.WaitGroup) {
 	defer func() {
-		cli.Close()
 		wg.Done()
 	}()
 
