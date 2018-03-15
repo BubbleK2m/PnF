@@ -76,6 +76,7 @@ type (
 		DisableHTTP2     bool
 		Debug            bool
 		HideBanner       bool
+		HidePort         bool
 		HTTPErrorHandler HTTPErrorHandler
 		Binder           Binder
 		Validator        Validator
@@ -128,15 +129,16 @@ type (
 
 // HTTP methods
 const (
-	CONNECT = "CONNECT"
-	DELETE  = "DELETE"
-	GET     = "GET"
-	HEAD    = "HEAD"
-	OPTIONS = "OPTIONS"
-	PATCH   = "PATCH"
-	POST    = "POST"
-	PUT     = "PUT"
-	TRACE   = "TRACE"
+	CONNECT  = "CONNECT"
+	DELETE   = "DELETE"
+	GET      = "GET"
+	HEAD     = "HEAD"
+	OPTIONS  = "OPTIONS"
+	PATCH    = "PATCH"
+	POST     = "POST"
+	PROPFIND = "PROPFIND"
+	PUT      = "PUT"
+	TRACE    = "TRACE"
 )
 
 // MIME types
@@ -190,6 +192,7 @@ const (
 	HeaderXHTTPMethodOverride = "X-HTTP-Method-Override"
 	HeaderXRealIP             = "X-Real-IP"
 	HeaderXRequestID          = "X-Request-ID"
+	HeaderXRequestedWith      = "X-Requested-With"
 	HeaderServer              = "Server"
 	HeaderOrigin              = "Origin"
 
@@ -213,7 +216,7 @@ const (
 )
 
 const (
-	version = "3.2.5"
+	version = "3.3.0"
 	website = "https://echo.labstack.com"
 	// http://patorjk.com/software/taag/#p=display&f=Small%20Slant&t=Echo
 	banner = `
@@ -237,6 +240,7 @@ var (
 		OPTIONS,
 		PATCH,
 		POST,
+		PROPFIND,
 		PUT,
 		TRACE,
 	}
@@ -250,10 +254,10 @@ var (
 	ErrForbidden                   = NewHTTPError(http.StatusForbidden)
 	ErrMethodNotAllowed            = NewHTTPError(http.StatusMethodNotAllowed)
 	ErrStatusRequestEntityTooLarge = NewHTTPError(http.StatusRequestEntityTooLarge)
-	ErrValidatorNotRegistered      = errors.New("Validator not registered")
-	ErrRendererNotRegistered       = errors.New("Renderer not registered")
-	ErrInvalidRedirectCode         = errors.New("Invalid redirect status code")
-	ErrCookieNotFound              = errors.New("Cookie not found")
+	ErrValidatorNotRegistered      = errors.New("validator not registered")
+	ErrRendererNotRegistered       = errors.New("renderer not registered")
+	ErrInvalidRedirectCode         = errors.New("invalid redirect status code")
+	ErrCookieNotFound              = errors.New("cookie not found")
 )
 
 // Error handlers
@@ -414,9 +418,9 @@ func (e *Echo) TRACE(path string, h HandlerFunc, m ...MiddlewareFunc) *Route {
 // Any registers a new route for all HTTP methods and path with matching handler
 // in the router with optional route-level middleware.
 func (e *Echo) Any(path string, handler HandlerFunc, middleware ...MiddlewareFunc) []*Route {
-	routes := make([]*Route, 0)
-	for _, m := range methods {
-		routes = append(routes, e.Add(m, path, handler, middleware...))
+	routes := make([]*Route, len(methods))
+	for i, m := range methods {
+		routes[i] = e.Add(m, path, handler, middleware...)
 	}
 	return routes
 }
@@ -424,9 +428,9 @@ func (e *Echo) Any(path string, handler HandlerFunc, middleware ...MiddlewareFun
 // Match registers a new route for multiple HTTP methods and path with matching
 // handler in the router with optional route-level middleware.
 func (e *Echo) Match(methods []string, path string, handler HandlerFunc, middleware ...MiddlewareFunc) []*Route {
-	routes := make([]*Route, 0)
-	for _, m := range methods {
-		routes = append(routes, e.Add(m, path, handler, middleware...))
+	routes := make([]*Route, len(methods))
+	for i, m := range methods {
+		routes[i] = e.Add(m, path, handler, middleware...)
 	}
 	return routes
 }
@@ -529,7 +533,7 @@ func (e *Echo) Reverse(name string, params ...interface{}) string {
 
 // Routes returns the registered routes.
 func (e *Echo) Routes() []*Route {
-	routes := []*Route{}
+	routes := make([]*Route, 0, len(e.router.routes))
 	for _, v := range e.router.routes {
 		routes = append(routes, v)
 	}
@@ -556,17 +560,16 @@ func (e *Echo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Acquire context
 	c := e.pool.Get().(*context)
-	defer e.pool.Put(c)
 	c.Reset(r, w)
 
 	// Middleware
 	h := func(c Context) error {
 		method := r.Method
-		path := r.URL.RawPath
-		if path == "" {
-			path = r.URL.Path
+		rpath := r.URL.RawPath // Raw path
+		if rpath == "" {
+			rpath = r.URL.Path
 		}
-		e.router.Find(method, path, c)
+		e.router.Find(method, rpath, c)
 		h := c.Handler()
 		for i := len(e.middleware) - 1; i >= 0; i-- {
 			h = e.middleware[i](h)
@@ -583,6 +586,9 @@ func (e *Echo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := h(c); err != nil {
 		e.HTTPErrorHandler(err, c)
 	}
+
+	// Release context
+	e.pool.Put(c)
 }
 
 // Start starts an HTTP server.
@@ -608,6 +614,10 @@ func (e *Echo) StartTLS(address string, certFile, keyFile string) (err error) {
 
 // StartAutoTLS starts an HTTPS server using certificates automatically installed from https://letsencrypt.org.
 func (e *Echo) StartAutoTLS(address string) error {
+	if e.Listener == nil {
+		go http.ListenAndServe(":http", e.AutoTLSManager.HTTPHandler(nil))
+	}
+
 	s := e.TLSServer
 	s.TLSConfig = new(tls.Config)
 	s.TLSConfig.GetCertificate = e.AutoTLSManager.GetCertificate
@@ -644,7 +654,7 @@ func (e *Echo) StartServer(s *http.Server) (err error) {
 				return err
 			}
 		}
-		if !e.HideBanner {
+		if !e.HidePort {
 			e.colorer.Printf("⇨ http server started on %s\n", e.colorer.Green(e.Listener.Addr()))
 		}
 		return s.Serve(e.Listener)
@@ -656,7 +666,7 @@ func (e *Echo) StartServer(s *http.Server) (err error) {
 		}
 		e.TLSListener = tls.NewListener(l, s.TLSConfig)
 	}
-	if !e.HideBanner {
+	if !e.HidePort {
 		e.colorer.Printf("⇨ https server started on %s\n", e.colorer.Green(e.TLSListener.Addr()))
 	}
 	return s.Serve(e.TLSListener)

@@ -274,13 +274,6 @@ func (c *context) Param(name string) string {
 			if n == name {
 				return c.pvalues[i]
 			}
-
-			// Param name with aliases
-			for _, p := range strings.Split(n, ",") {
-				if p == name {
-					return c.pvalues[i]
-				}
-			}
 		}
 	}
 	return ""
@@ -516,18 +509,17 @@ func (c *context) File(file string) (err error) {
 	return
 }
 
-func (c *context) Attachment(file, name string) (err error) {
+func (c *context) Attachment(file, name string) error {
 	return c.contentDisposition(file, name, "attachment")
 }
 
-func (c *context) Inline(file, name string) (err error) {
+func (c *context) Inline(file, name string) error {
 	return c.contentDisposition(file, name, "inline")
 }
 
-func (c *context) contentDisposition(file, name, dispositionType string) (err error) {
+func (c *context) contentDisposition(file, name, dispositionType string) error {
 	c.response.Header().Set(HeaderContentDisposition, fmt.Sprintf("%s; filename=%q", dispositionType, name))
-	c.File(file)
-	return
+	return c.File(file)
 }
 
 func (c *context) NoContent(code int) error {

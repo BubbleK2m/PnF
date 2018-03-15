@@ -2,12 +2,13 @@ package socket
 
 import (
 	"encoding/json"
-	"io"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/DSMdongly/pnf/app"
 
-	"github.com/gorilla/websocket"
+	"github.com/golang/x/net/websocket"
 )
 
 type Client struct {
@@ -67,23 +68,22 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	for {
-		msg := Message{}
+		txt := ""
 
-		_, byts, err := cli.Conn.ReadMessage()
-
-		if err != nil {
+		if err := websocket.Message.Receive(cli.Conn, &txt); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
 
-		if err = json.Unmarshal(byts, &msg); err != nil {
+		if err := json.Unmarshal([]byte(txt), &msg); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
 
-		app.Echo.Logger.Infof("received message %v", msg)
-
+		log.Printf("received message %v\n", msg)
 		cli.Input <- msg
+
+		time.Sleep(100)
 	}
 }
 
@@ -110,6 +110,7 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				cli.Name = nme
 
 				rom := MatchingRoom()
+
 				rom.Join(cli)
 				rom.BroadCast(JoinGameReport(cli), cli)
 
@@ -170,6 +171,8 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				cli.Output <- ShootBulletResponse(true)
 			}
 		}
+
+		time.Sleep(100)
 	}
 }
 
@@ -184,26 +187,12 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 	for out := range cli.Output {
 		byts, err := json.Marshal(out)
 
-		if err != nil {
-			if err == io.EOF {
-				app.Echo.Logger.Error("connection closed")
-				break
-			}
-
+		if err = websocket.Message.Send(ws, string(byts)); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
 
-		if err = cli.Conn.WriteMessage(websocket.TextMessage, byts); err != nil {
-			if err == io.EOF {
-				app.Echo.Logger.Error("connection closed")
-				break
-			}
-
-			app.Echo.Logger.Error(err)
-			break
-		}
-
-		app.Echo.Logger.Infof("sent message %v", out)
+		log.Printf("sent message %v\n", out)
+		time.Sleep(100)
 	}
 }
