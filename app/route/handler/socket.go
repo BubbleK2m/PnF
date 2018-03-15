@@ -11,7 +11,8 @@ import (
 func Socket() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		websocket.Handler(func(con *websocket.Conn) {
-			socket.NewClient(con).Handle()
+			cli := socket.NewClient(con)
+			cli.Handle()
 		}).ServeHTTP(ctx.Response(), ctx.Request())
 
 		return nil
