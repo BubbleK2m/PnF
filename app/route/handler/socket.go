@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"sync"
+
+	"github.com/DSMdongly/pnf/socket"
 	"github.com/labstack/echo"
 
 	"golang.org/x/net/websocket"
@@ -9,23 +12,16 @@ import (
 func Socket() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		websocket.Handler(func(con *websocket.Conn) {
-			defer con.Close()
+			cli := socket.NewClient(con)
+			defer cli.Close()
 
-			for {
-				txt := ""
+			var wg sync.WaitGroup
 
-				if err := websocket.Message.Receive(con, &txt); err != nil {
-					ctx.Logger().Error(err)
-				}
+			go cli.Read(&wg)
+			go cli.Process(&wg)
+			go cli.Write(&wg)
 
-				ctx.Logger().Info("received msg ", txt)
-
-				if err := websocket.Message.Send(con, txt); err != nil {
-					ctx.Logger().Error(err)
-				}
-
-				ctx.Logger().Info("sent msg ", txt)
-			}
+			wg.Wait()
 		}).ServeHTTP(ctx.Response(), ctx.Request())
 
 		return nil
