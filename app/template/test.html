@@ -14,9 +14,9 @@
         <script>
             const socket = new WebSocket(`${ location.protocol === 'https:' ? 'wss' : 'ws' }://${ location.host }/socket`);
 
-            socket.onmessage = (event) => {
-                console.log(event.data);
-            };
+            socket.onopen = (event) => console.log("opened!");
+            socket.onmessage = (event) => console.log(event.data);
+            socket.onclose = (event) => console.log("closed!");
 
             document.getElementById("add-param-btn").onclick = (event) => {
                 let keyInput = document.createElement("input");
