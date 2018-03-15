@@ -68,6 +68,7 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	for {
+		msg := Message{}
 		txt := ""
 
 		if err := websocket.Message.Receive(cli.Conn, &txt); err != nil {
@@ -187,7 +188,7 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 	for out := range cli.Output {
 		byts, err := json.Marshal(out)
 
-		if err = websocket.Message.Send(ws, string(byts)); err != nil {
+		if err = websocket.Message.Send(cli.Conn, string(byts)); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
