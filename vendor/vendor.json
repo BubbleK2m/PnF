@@ -9,6 +9,12 @@
 			"revisionTime": "2018-03-08T23:13:08Z"
 		},
 		{
+			"checksumSHA1": "tvVmLXS0w9aMKlZkVyiECxtbZXI=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "eb925808374e5ca90c83401a40d711dc08c0c0f6",
+			"revisionTime": "2018-03-06T18:15:48Z"
+		},
+		{
 			"checksumSHA1": "Y8pAJpOwQqEtE9EncoNdTw0hpJg=",
 			"path": "github.com/labstack/echo",
 			"revision": "62d3587b6fa2e927f6a9a58f9920d31afd2b9661",
