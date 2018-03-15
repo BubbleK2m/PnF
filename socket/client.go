@@ -1,10 +1,8 @@
 package socket
 
 import (
-	"encoding/json"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/DSMdongly/pnf/app"
 
@@ -68,23 +66,15 @@ func (cli *Client) Read(wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	for {
-		msg := Message{}
-		txt := ""
+		in := Message{}
 
-		if err := websocket.Message.Receive(cli.Conn, &txt); err != nil {
+		if err := websocket.JSON.Receive(cli.Conn, &in); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
 
-		if err := json.Unmarshal([]byte(txt), &msg); err != nil {
-			app.Echo.Logger.Error(err)
-			break
-		}
-
-		log.Printf("received message %v\n", msg)
-		cli.Input <- msg
-
-		time.Sleep(100)
+		log.Printf("received message %v\n", in)
+		cli.Input <- in
 	}
 }
 
@@ -172,8 +162,6 @@ func (cli *Client) Process(wg *sync.WaitGroup) {
 				cli.Output <- ShootBulletResponse(true)
 			}
 		}
-
-		time.Sleep(100)
 	}
 }
 
@@ -186,14 +174,11 @@ func (cli *Client) Write(wg *sync.WaitGroup) {
 	wg.Add(1)
 
 	for out := range cli.Output {
-		byts, err := json.Marshal(out)
-
-		if err = websocket.Message.Send(cli.Conn, string(byts)); err != nil {
+		if err := websocket.JSON.Send(cli.Conn, &out); err != nil {
 			app.Echo.Logger.Error(err)
 			break
 		}
 
 		log.Printf("sent message %v\n", out)
-		time.Sleep(100)
 	}
 }

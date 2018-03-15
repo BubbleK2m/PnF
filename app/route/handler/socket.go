@@ -12,6 +12,8 @@ func Socket() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		websocket.Handler(func(con *websocket.Conn) {
 			cli := socket.NewClient(con)
+			defer cli.Close()
+
 			cli.Handle()
 		}).ServeHTTP(ctx.Response(), ctx.Request())
 
